@@ -1,0 +1,112 @@
+---
+interface Props {
+	lines: string[];
+	role: string;
+	location: string;
+	image?: string;
+	imageAlt?: string;
+}
+
+const { lines, role, location, image, imageAlt } = Astro.props;
+const fullName = lines.join(' ');
+---
+
+<div
+	class="flex flex-col items-center gap-8 py-16 text-center lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-6 lg:py-24"
+>
+	<div class="flex items-center gap-4 lg:order-1">
+		<span class="hidden h-px flex-1 bg-gray-300/60 lg:block" />
+		<p class="whitespace-nowrap text-sm text-gray-300 lg:text-base">{role}</p>
+	</div>
+	<h1
+		id="name-hero"
+		class="name-hero select-none font-archivo text-6xl leading-[0.9] uppercase text-gray-0 lg:order-2 lg:text-8xl"
+		aria-label={fullName}
+	>
+		<span aria-hidden="true">
+			{
+				lines.map((line) => (
+					<span class="block">
+						{line.split('').map((char) => (
+							<span class="name-hero-char inline-block">{char === ' ' ? ' ' : char}</span>
+						))}
+					</span>
+				))
+			}
+		</span>
+	</h1>
+	<div class="flex items-center gap-4 lg:order-3">
+		<p class="whitespace-nowrap text-sm text-gray-300 lg:text-base">{location}</p>
+		<span class="hidden h-px flex-1 bg-gray-300/60 lg:block" />
+	</div>
+	{
+		image && (
+			<img class="w-48 object-contain lg:order-4 lg:col-span-3 lg:w-72" src={image} alt={imageAlt || ''} />
+		)
+	}
+</div>
+
+<style>
+	.name-hero-char {
+		font-variation-settings: 'wght' 700;
+		transition: font-variation-settings 0.15s ease-out;
+	}
+
+	@media (hover: none) {
+		.name-hero-char {
+			font-variation-settings: 'wght' 800;
+		}
+	}
+</style>
+
+<script>
+	const MIN_WEIGHT = 700;
+	const MAX_WEIGHT = 900;
+	const RADIUS = 160;
+
+	function setupNameHero() {
+		const heading = document.getElementById('name-hero');
+		if (!heading) return;
+
+		const chars = Array.from(heading.querySelectorAll<HTMLElement>('.name-hero-char'));
+		if (chars.length === 0) return;
+
+		if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+		let rafId: number | null = null;
+		let pointerX = 0;
+		let pointerY = 0;
+
+		const applyWeights = () => {
+			rafId = null;
+			for (const char of chars) {
+				const rect = char.getBoundingClientRect();
+				const centerX = rect.left + rect.width / 2;
+				const centerY = rect.top + rect.height / 2;
+				const distance = Math.hypot(pointerX - centerX, pointerY - centerY);
+				const proximity = Math.max(0, 1 - distance / RADIUS);
+				const weight = Math.round(MIN_WEIGHT + (MAX_WEIGHT - MIN_WEIGHT) * proximity);
+				char.style.fontVariationSettings = `'wght' ${weight}`;
+			}
+		};
+
+		const resetWeights = () => {
+			for (const char of chars) {
+				char.style.fontVariationSettings = `'wght' ${MIN_WEIGHT}`;
+			}
+		};
+
+		const onPointerMove = (event: PointerEvent) => {
+			pointerX = event.clientX;
+			pointerY = event.clientY;
+			if (rafId === null) rafId = requestAnimationFrame(applyWeights);
+		};
+
+		const controller = new AbortController();
+		document.addEventListener('pointermove', onPointerMove, { signal: controller.signal });
+		heading.addEventListener('pointerleave', resetWeights, { signal: controller.signal });
+		document.addEventListener('astro:before-swap', () => controller.abort(), { once: true });
+	}
+
+	document.addEventListener('astro:page-load', setupNameHero);
+</script>

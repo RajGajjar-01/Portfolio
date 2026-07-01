@@ -2,31 +2,39 @@
 import ContactCTA from '../components/ContactCTA.astro';
 import Hero from '../components/Hero.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const linkClasses =
+	'text-gray-400 underline decoration-solid decoration-transparent decoration-1 underline-offset-[0.25em] transition-[text-decoration-color] duration-200 ease-in-out hover:decoration-current focus:decoration-current';
 ---
 
-<BaseLayout title="About | Jeanine White" description="About Jeanine White Lorem Ipsum">
-	<div class="stack gap-20">
-		<main class="wrapper about">
+<BaseLayout title="About | Raj N Gajjar" description="About Raj N Gajjar Lorem Ipsum">
+	<div class="flex flex-col gap-20">
+		<main
+			class="about mx-auto flex w-full max-w-[83rem] flex-col gap-14 px-6 lg:grid lg:grid-cols-[1fr_60%_1fr]"
+		>
 			<Hero
 				title="About"
 				tagline="Thanks for stopping by. Read below to learn more about myself and my background."
 			>
 				<img
+					class="mt-6 rounded-3xl shadow-md"
 					width="1553"
 					height="873"
 					src="/assets/at-work.jpg"
-					alt="Jeanine White at work with a colleague"
+					alt="Raj N Gajjar at work with a colleague"
 				/>
 			</Hero>
 
-			<section>
-				<h2 class="section-title">Background</h2>
-				<div class="content">
+			<section class="flex flex-col gap-2 text-gray-200 lg:contents lg:text-lg">
+				<h2 class="text-xl text-gray-0 lg:[grid-column-start:1]">Background</h2>
+				<div class="lg:text-lg lg:[grid-column:2/4]">
 					<p>
-						Lorem ipsum dolor sit amet, <a href="https://astro.build/">Astro</a> makes people happy. Sed
-						do eiusmod tempor incididunt ut labore et dolore magna aliqua. Proin nibh nisl condimentum
-						id venenatis a condimentum vitae. Dapibus ultrices in iaculis nunc. Arcu odio ut sem nulla
-						pharetra diam sit amet. Diam quis enim lobortis scelerisque fermentum dui faucibus in ornare.
+						Lorem ipsum dolor sit amet, <a class={linkClasses} href="https://astro.build/"
+							>Astro</a
+						> makes people happy. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+						Proin nibh nisl condimentum id venenatis a condimentum vitae. Dapibus ultrices in iaculis
+						nunc. Arcu odio ut sem nulla pharetra diam sit amet. Diam quis enim lobortis scelerisque
+						fermentum dui faucibus in ornare.
 					</p>
 					<p>
 						Arcu dui vivamus arcu felis bibendum ut tristique et egestas. Eget gravida cum sociis
@@ -42,15 +50,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 					</p>
 				</div>
 			</section>
-			<section>
-				<h2 class="section-title">Education</h2>
-				<div class="content">
+			<section class="flex flex-col gap-2 text-gray-200 lg:contents lg:text-lg">
+				<h2 class="text-xl text-gray-0 lg:[grid-column-start:1]">Education</h2>
+				<div class="lg:text-lg lg:[grid-column:2/4]">
 					<p>Corporis voluptates tenetur laudantium.</p>
 				</div>
 			</section>
-			<section>
-				<h2 class="section-title">Skills</h2>
-				<div class="content">
+			<section class="flex flex-col gap-2 text-gray-200 lg:contents lg:text-lg">
+				<h2 class="text-xl text-gray-0 lg:[grid-column-start:1]">Skills</h2>
+				<div class="lg:text-lg lg:[grid-column:2/4]">
 					<p>officia unde omnis</p>
 				</div>
 			</section>
@@ -61,59 +69,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <style>
-	.about {
-		display: flex;
-		flex-direction: column;
-		gap: 3.5rem;
-	}
-
-	img {
-		margin-top: 1.5rem;
-		border-radius: 1.5rem;
-		box-shadow: var(--shadow-md);
-	}
-
-	section {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		color: var(--gray-200);
-	}
-
-	.section-title {
-		grid-column-start: 1;
-		font-size: var(--text-xl);
-		color: var(--gray-0);
-	}
-
-	.content {
-		grid-column: 2 / 4;
-	}
-
-	.content :global(a) {
-		text-decoration: 1px solid underline transparent;
-		text-underline-offset: 0.25em;
-		transition: text-decoration-color var(--theme-transition);
-	}
-
-	.content :global(a:hover),
-	.content :global(a:focus) {
-		text-decoration-color: currentColor;
-	}
-
 	@media (min-width: 50em) {
-		.about {
-			display: grid;
-			grid-template-columns: 1fr 60% 1fr;
-		}
-
 		.about > :global(:first-child) {
 			grid-column-start: 2;
-		}
-
-		section {
-			display: contents;
-			font-size: var(--text-lg);
 		}
 	}
 </style>

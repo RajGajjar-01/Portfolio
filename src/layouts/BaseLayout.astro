@@ -10,9 +10,11 @@ import Nav from '../components/Nav.astro';
 interface Props {
 	title?: string | undefined;
 	description?: string | undefined;
+	flatTopBackground?: boolean;
+	hideNav?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, flatTopBackground = false, hideNav = false } = Astro.props;
 ---
 
 <html lang="en">
@@ -20,9 +22,11 @@ const { title, description } = Astro.props;
 		<MainHead title={title} description={description} />
 	</head>
 	<body>
-		<div class="stack backgrounds">
-			<Nav />
-			<slot />
+		<div class:list={['flex min-h-dvh flex-col backgrounds', { 'flat-top': flatTopBackground }]}>
+			{!hideNav && <Nav />}
+			<div class="flex flex-1 flex-col">
+				<slot />
+			</div>
 			<Footer />
 		</div>
 
@@ -89,7 +93,6 @@ const { title, description } = Astro.props;
 			}
 
 			.backgrounds {
-				min-height: 100%;
 				isolation: isolate;
 				background:
 					/*noise*/
@@ -105,6 +108,20 @@ const { title, description } = Astro.props;
 					/*header2*/ normal,
 					/*base*/ normal;
 			}
+
+			.backgrounds.flat-top {
+				--bg-image-main: var(--_placeholder-bg);
+				--bg-image-main-curves: var(--_placeholder-bg);
+				--bg-image-footer: var(--_placeholder-bg);
+				--bg-image-subtle-1: var(--_placeholder-bg);
+				--bg-image-subtle-2: var(--_placeholder-bg);
+				background-color: #f6f0eb;
+			}
+
+			:root.theme-dark .backgrounds.flat-top {
+				background-color: var(--gray-999);
+			}
+
 			@media (forced-colors: active) {
 				/* Deactivate custom backgrounds for high contrast users. */
 				.backgrounds {

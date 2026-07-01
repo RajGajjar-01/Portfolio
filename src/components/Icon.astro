@@ -1,5 +1,4 @@
 ---
-import type { HTMLAttributes } from 'astro/types';
 import { iconPaths } from './IconPaths';
 
 interface Props {
@@ -7,13 +6,11 @@ interface Props {
 	color?: string;
 	gradient?: boolean;
 	size?: string;
+	class?: string;
 }
 
-const { color = 'currentcolor', gradient, icon, size } = Astro.props;
+const { color = 'currentcolor', gradient, icon, size, class: className } = Astro.props;
 const iconPath = iconPaths[icon];
-
-const attrs: HTMLAttributes<'svg'> = {};
-if (size) attrs.style = { '--size': size };
 
 const gradientId = 'icon-gradient-' + Math.round(Math.random() * 10e12).toString(36);
 ---
@@ -26,7 +23,8 @@ const gradientId = 'icon-gradient-' + Math.round(Math.random() * 10e12).toString
 	aria-hidden="true"
 	stroke={gradient ? `url(#${gradientId})` : color}
 	fill={gradient ? `url(#${gradientId})` : color}
-	{...attrs}
+	class:list={['align-middle', 'w-[var(--size,1em)]', 'h-[var(--size,1em)]', className]}
+	style={size ? `--size: ${size}` : undefined}
 >
 	<g set:html={iconPath} />
 	{
@@ -46,11 +44,3 @@ const gradientId = 'icon-gradient-' + Math.round(Math.random() * 10e12).toString
 		)
 	}
 </svg>
-
-<style>
-	svg {
-		vertical-align: middle;
-		width: var(--size, 1em);
-		height: var(--size, 1em);
-	}
-</style>
