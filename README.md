@@ -1,20 +1,26 @@
-# Astro Starter Kit: Portfolio
+# Raj N Gajjar — Personal Portfolio
 
-```sh
-pnpm create astro@latest -- --template portfolio
-```
+Personal portfolio website built with **Astro 7** and **Tailwind CSS v4**, featuring a dark/light theme, interactive name hero, and a Markdown-driven work portfolio.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/portfolio)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/portfolio)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/portfolio/devcontainer.json)
+## Tech Stack
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- **Framework:** Astro 7
+- **Styling:** Tailwind CSS v4
+- **Icons:** Custom Phosphor-derived SVG icons
+- **Fonts:** Archivo, Public Sans, Rubik (Google Fonts)
+- **Content:** Markdown-based work collection
+- **View Transitions:** Astro ClientRouter
 
-![portfolio](https://user-images.githubusercontent.com/357379/210779178-a98f0fb7-6b1a-4068-894c-8e1403e26654.jpg)
+## Features
 
-## 🧞 Commands
+- Dark/light mode with system preference detection and localStorage persistence
+- Interactive NameHero with magnetic font-weight hover effect on each character
+- Responsive navigation with collapsible mobile menu
+- Offset grid layout for staggered project previews
+- Fully typed content collection for portfolio projects
+- Custom 404 page
 
-All commands are run from the root of the project, from a terminal:
+## Commands
 
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
@@ -25,6 +31,14 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `pnpm astro -- --help` | Get help using the Astro CLI                     |
 
-## 👀 Want to learn more?
+## Project Structure
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+```
+src/
+  content.config.ts          # Content collection schema
+  content/work/              # Markdown project files
+  layouts/BaseLayout.astro   # Root layout with nav & footer
+  pages/                     # Routes: index, work, about, 404
+  components/                # Reusable UI components
+  styles/global.css          # Tailwind import + design tokens
+```
