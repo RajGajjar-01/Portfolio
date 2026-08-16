@@ -11,7 +11,7 @@ export const site = {
 	// Must match `site` in astro.config.mjs.
 	url: 'https://example.com',
 	locale: 'en',
-	email: 'programmingnotesbyraj@gmail.com',
+	email: 'irajgajjar.2004@gmail.com',
 } as const;
 
 export const nav = [
@@ -22,7 +22,7 @@ export const nav = [
 
 export const socials = [
 	{ label: 'GitHub', href: 'https://github.com/RajGajjar-01' },
-	{ label: 'LinkedIn', href: 'https://linkedin.com/in/TODO' },
-	{ label: 'X', href: 'https://x.com/TODO' },
+	{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/rajgajjar04/' },
+	{ label: 'X', href: 'https://x.com/rajgajjar_11' },
 	{ label: 'Email', href: `mailto:${site.email}` },
 ] as const;
