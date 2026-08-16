@@ -1,0 +1,40 @@
+---
+import Section from '../ui/Section.astro';
+
+// TODO: replace with your real background. Keep it to three short paragraphs —
+// the resume page carries the detail.
+const paragraphs = [
+	'I am a software engineer focused on the parts of a system users actually feel: page load, input latency, and the failure modes nobody plans for. Most of my work sits between the browser and the services behind it.',
+	'Recently I have been working on distributed systems and developer tooling — building the internal platforms that let other engineers ship without thinking about infrastructure.',
+	'Outside of work I write about what I learn, mostly performance and architecture. Some of it ends up on this site.',
+];
+
+const stack = [
+	'TypeScript',
+	'React',
+	'Node.js',
+	'Go',
+	'PostgreSQL',
+	'Redis',
+	'Docker',
+	'AWS',
+	'Cloudflare',
+];
+---
+
+<Section id="about" eyebrow="About" title="Background">
+	<div class="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
+		<div class="reveal space-y-5 text-lg leading-relaxed">
+			{paragraphs.map((text) => <p>{text}</p>)}
+		</div>
+
+		<aside class="reveal">
+			<h3 class="text-muted mb-4 font-mono text-xs tracking-widest uppercase">
+				Working with
+			</h3>
+			<ul class="flex flex-wrap gap-x-4 gap-y-2">
+				{stack.map((item) => <li class="text-muted text-sm">{item}</li>)}
+			</ul>
+		</aside>
+	</div>
+</Section>

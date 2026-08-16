@@ -1,0 +1,47 @@
+---
+interface Props {
+	href: string;
+	variant?: 'solid' | 'outline' | 'ghost';
+	class?: string;
+}
+
+const { href, variant = 'solid', class: className = '' } = Astro.props;
+
+// Treat anything that isn't a root-relative path or hash as off-site.
+const external = !href.startsWith('/') && !href.startsWith('#');
+
+const variants = {
+	solid: 'bg-accent text-accent-fg hover:opacity-90',
+	outline: 'border-border border hover:border-accent hover:text-accent',
+	ghost: 'text-muted hover:text-fg',
+};
+---
+
+<a
+	href={href}
+	target={external ? '_blank' : undefined}
+	rel={external ? 'noopener noreferrer' : undefined}
+	class:list={[
+		'inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition',
+		variants[variant],
+		className,
+	]}
+>
+	<slot />
+	{
+		external && (
+			<svg
+				class="size-3.5 opacity-60"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"
+			>
+				<path d="M7 17 17 7M9 7h8v8" />
+			</svg>
+		)
+	}
+</a>

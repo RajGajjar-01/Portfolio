@@ -1,0 +1,64 @@
+---
+import { Image } from 'astro:assets';
+import Tag from './Tag.astro';
+import { tagSlug, type Project } from '../../lib/content';
+
+interface Props {
+	project: Project;
+	/** The first card is above the fold, so it must not be lazy-loaded. */
+	eager?: boolean;
+}
+
+const { project, eager = false } = Astro.props;
+const { title, summary, cover, coverAlt, tags, year, role } = project.data;
+
+// Shared with the case-study hero so the cover morphs across the navigation.
+const transitionName = `cover-${tagSlug(project.id)}`;
+---
+
+<article class="reveal group">
+	<a href={`/projects/${project.id}`} class="block">
+		{
+			cover ? (
+				<div class="border-border bg-surface mb-5 overflow-hidden rounded-xl border">
+					<Image
+						src={cover}
+						alt={coverAlt}
+						width={800}
+						height={500}
+						loading={eager ? 'eager' : 'lazy'}
+						fetchpriority={eager ? 'high' : 'auto'}
+						class="aspect-[8/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+						style={`view-transition-name: ${transitionName}`}
+					/>
+				</div>
+			) : (
+				<div
+					class="border-border bg-surface mb-5 aspect-[8/5] rounded-xl border"
+					style={`view-transition-name: ${transitionName}`}
+				/>
+			)
+		}
+
+		<div class="text-muted mb-2 flex items-center gap-2 font-mono text-xs">
+			<span>{year}</span>
+			{role && <span class="before:mr-2 before:content-['·']">{role}</span>}
+		</div>
+
+		<h3 class="group-hover:text-accent mb-2 text-xl transition-colors">
+			{title}
+		</h3>
+
+		<p class="text-muted max-w-prose text-sm leading-relaxed">{summary}</p>
+	</a>
+
+	{
+		tags.length > 0 && (
+			<div class="mt-4 flex flex-wrap gap-1.5">
+				{tags.map((tag) => (
+					<Tag>{tag}</Tag>
+				))}
+			</div>
+		)
+	}
+</article>

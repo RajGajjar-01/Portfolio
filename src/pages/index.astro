@@ -1,93 +1,53 @@
 ---
-import Icon from '../components/Icon.astro';
-import NameHero from '../components/NameHero.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
-// Layout import — provides basic page elements: <head>, <nav>, <footer> etc.
-import BaseLayout from '../layouts/BaseLayout.astro';
+import Page from '../layouts/Page.astro';
+import Section from '../components/ui/Section.astro';
+import Hero from '../components/home/Hero.astro';
+import About from '../components/home/About.astro';
+import Contact from '../components/home/Contact.astro';
+import ProjectCard from '../components/ui/ProjectCard.astro';
+import PostCard from '../components/ui/PostCard.astro';
+import { getFeaturedProjects, getPosts } from '../lib/content';
 
-const menuLinks = [
-	{ label: 'Home', href: '/' },
-	{ label: 'Work', href: '/work/' },
-	{ label: 'About', href: '/about/' },
-];
+const projects = await getFeaturedProjects(3);
+const posts = (await getPosts()).slice(0, 3);
 ---
 
-<BaseLayout flatTopBackground hideNav>
-	<div class="flex justify-end p-6">
-		<ThemeToggle />
-	</div>
-	<div class="mx-auto flex w-full max-w-[83rem] flex-1 flex-col items-center justify-center px-6">
-		<NameHero lines={['Raj N', 'Gajjar']} role="Software Engineer" location="Based in India" />
-	</div>
+<Page>
+	<Hero />
 
-	<div
-		id="hero-menu"
-		class="fixed bottom-10 left-1/2 z-50 flex w-36 -translate-x-1/2 flex-col items-stretch overflow-hidden rounded-3xl bg-menu transition-[width,background-color] duration-300 ease-in-out"
-	>
-		<div id="hero-menu-rows" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out">
-			<div class="min-h-0 overflow-hidden">
-				<ul class="flex flex-col items-stretch gap-1 px-2 pt-6 pb-2 text-center">
-					{
-						menuLinks.map(({ label, href }) => (
-							<li>
-								<a
-									href={href}
-									class="block rounded-xl px-8 py-2 text-lg font-bold tracking-wide text-white uppercase transition-colors duration-200 ease-in-out hover:bg-white/10"
-								>
-									{label}
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</div>
-		</div>
-		<button
-			id="hero-menu-button"
-			type="button"
-			aria-expanded="false"
-			aria-controls="hero-menu-rows"
-			class="flex items-center justify-center gap-6 px-6 py-3 text-sm font-medium text-black transition-colors duration-300 ease-in-out"
-		>
-			<span>Menu</span>
-			<Icon icon="list" size="1.1em" class="hero-menu-icon-open" />
-			<Icon icon="x" size="1.1em" class="hero-menu-icon-close hidden" />
-		</button>
-	</div>
-</BaseLayout>
-
-<script>
-	function setupHeroMenu() {
-		const container = document.getElementById('hero-menu');
-		const rows = document.getElementById('hero-menu-rows');
-		const button = document.getElementById('hero-menu-button');
-		if (!container || !rows || !button) return;
-
-		const iconOpen = button.querySelector('.hero-menu-icon-open');
-		const iconClose = button.querySelector('.hero-menu-icon-close');
-
-		const setExpanded = (expand: boolean) => {
-			button.setAttribute('aria-expanded', String(expand));
-			rows.classList.toggle('grid-rows-[0fr]', !expand);
-			rows.classList.toggle('grid-rows-[1fr]', expand);
-			iconOpen?.classList.toggle('hidden', expand);
-			iconClose?.classList.toggle('hidden', !expand);
-			container.classList.toggle('bg-menu', !expand);
-			container.classList.toggle('bg-[#1c1c1c]', expand);
-			container.classList.toggle('w-36', !expand);
-			container.classList.toggle('w-60', expand);
-			button.classList.toggle('text-black', !expand);
-			button.classList.toggle('text-white', expand);
-		};
-
-		const controller = new AbortController();
-		button.addEventListener(
-			'click',
-			() => setExpanded(!container.classList.contains('bg-[#1c1c1c]')),
-			{ signal: controller.signal },
-		);
-		document.addEventListener('astro:before-swap', () => controller.abort(), { once: true });
+	{
+		projects.length > 0 && (
+			<Section
+				eyebrow="Selected work"
+				title="Things I have built"
+				action={{ label: 'All work', href: '/projects' }}
+			>
+				<div class="grid gap-x-8 gap-y-14 sm:grid-cols-2">
+					{projects.map((project, i) => (
+						<ProjectCard project={project} eager={i === 0} />
+					))}
+				</div>
+			</Section>
+		)
 	}
 
-	document.addEventListener('astro:page-load', setupHeroMenu);
-</script>
+	<About />
+
+	{
+		posts.length > 0 && (
+			<Section
+				eyebrow="Writing"
+				title="Recent posts"
+				action={{ label: 'All posts', href: '/blog' }}
+			>
+				<div>
+					{posts.map((post) => (
+						<PostCard post={post} />
+					))}
+				</div>
+			</Section>
+		)
+	}
+
+	<Contact />
+</Page>

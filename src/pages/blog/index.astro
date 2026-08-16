@@ -1,0 +1,50 @@
+---
+import Page from '../../layouts/Page.astro';
+import Container from '../../components/ui/Container.astro';
+import PostCard from '../../components/ui/PostCard.astro';
+import Tag from '../../components/ui/Tag.astro';
+import { getPosts, getPostTags, tagSlug } from '../../lib/content';
+
+const posts = await getPosts();
+const tags = await getPostTags();
+---
+
+<Page
+	title="Writing"
+	description="Notes on performance, architecture, and the web platform."
+>
+	<Container class="py-16 sm:py-24">
+		<header class="mb-14 max-w-2xl">
+			<p class="text-muted mb-3 font-mono text-xs tracking-widest uppercase">Writing</p>
+			<h1 class="text-4xl sm:text-6xl">Posts</h1>
+			<p class="text-muted mt-6 text-lg leading-relaxed">
+				Mostly performance and architecture — things I worked out the hard way and
+				wanted to write down.
+			</p>
+		</header>
+
+		{
+			tags.length > 0 && (
+				<nav aria-label="Filter by tag" class="border-border mb-12 flex flex-wrap gap-1.5 border-b pb-8">
+					{tags.map(({ tag, count }) => (
+						<Tag href={`/blog/tag/${tagSlug(tag)}`}>
+							{tag}<span class="ml-1.5 opacity-50">{count}</span>
+						</Tag>
+					))}
+				</nav>
+			)
+		}
+
+		{
+			posts.length > 0 ? (
+				<div>
+					{posts.map((post) => (
+						<PostCard post={post} />
+					))}
+				</div>
+			) : (
+				<p class="text-muted">Nothing published yet.</p>
+			)
+		}
+	</Container>
+</Page>

@@ -1,0 +1,18 @@
+---
+interface Props {
+	/** Renders as a link when set; a plain label otherwise. */
+	href?: string;
+	class?: string;
+}
+
+const { href, class: className = '' } = Astro.props;
+const Tag = href ? 'a' : 'span';
+
+const base =
+	'border-border text-muted inline-block rounded-full border px-2.5 py-0.5 text-xs leading-5';
+const interactive = href ? 'hover:border-accent hover:text-accent transition-colors' : '';
+---
+
+<Tag href={href} class:list={[base, interactive, className]}>
+	<slot />
+</Tag>

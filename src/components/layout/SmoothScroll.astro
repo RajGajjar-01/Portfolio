@@ -1,0 +1,70 @@
+---
+/*
+  Lenis smooth scrolling.
+
+  This is the one place the site knowingly ships a JS bundle (~3kb gzipped).
+  There is no CSS equivalent: `scroll-behavior: smooth` only affects
+  programmatic and anchor scrolls, not wheel or trackpad inertia.
+
+  Lenis wraps the browser's real scroll position rather than transform-faking
+  it, so `position: sticky`, anchor links, and the URL hash keep working. The
+  script also publishes scroll progress as a CSS variable, which drives the
+  reading progress bar.
+*/
+---
+
+<script>
+	import Lenis from 'lenis';
+	import 'lenis/dist/lenis.css';
+
+	const root = document.documentElement;
+	const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+	/*
+	  Progress is always derived from the real scroll position rather than from
+	  Lenis' own `scroll` event. Lenis moves the actual scroll position, so this
+	  stays correct whether Lenis is running, disabled for reduced motion, or
+	  bypassed by a programmatic `scrollTo`.
+	*/
+	const updateProgress = () => {
+		const max = root.scrollHeight - window.innerHeight;
+		const value = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+		root.style.setProperty('--scroll-progress', String(value));
+	};
+
+	let lenis: Lenis | null = null;
+
+	function start() {
+		if (lenis) return;
+
+		lenis = new Lenis({
+			// `lerp` (continuous interpolation) instead of `duration` (a tween
+			// that restarts on every wheel tick). Duration mode can feel stepped
+			// during fast, continuous scrolling; lerp is always catching up to
+			// the target, which reads as smoother. Lower = smoother but laggier.
+			lerp: 0.1,
+			// Touch already has native inertia — only smooth the wheel.
+			syncTouch: false,
+			autoRaf: true,
+		});
+
+		// Marks that JS is driving the progress bar, which is what lets the
+		// stylesheet hide the native scrollbar. Without it, the scrollbar stays.
+		root.dataset.smoothScroll = '';
+	}
+
+	function stop() {
+		lenis?.destroy();
+		lenis = null;
+		delete root.dataset.smoothScroll;
+	}
+
+	const sync = () => (reduced.matches ? stop() : start());
+
+	sync();
+	reduced.addEventListener('change', sync);
+
+	window.addEventListener('scroll', updateProgress, { passive: true });
+	window.addEventListener('resize', updateProgress, { passive: true });
+	updateProgress();
+</script>

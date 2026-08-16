@@ -1,0 +1,26 @@
+---
+type Width = 'default' | 'wide' | 'prose';
+
+interface Props {
+	/** `prose` narrows to a comfortable reading measure for long-form text. */
+	width?: Width;
+	as?: string;
+	class?: string;
+}
+
+const {
+	width = 'default',
+	as: Tag = 'div',
+	class: className = '',
+}: Props = Astro.props;
+
+const widths: Record<Width, string> = {
+	default: 'max-w-5xl',
+	wide: 'max-w-7xl',
+	prose: 'max-w-prose',
+};
+---
+
+<Tag class:list={['mx-auto w-full px-6 sm:px-8', widths[width], className]}>
+	<slot />
+</Tag>

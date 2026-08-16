@@ -1,0 +1,78 @@
+---
+title: 'Scroll-driven animations killed my IntersectionObserver'
+description: 'CSS scroll-driven animations replace the reveal-on-scroll pattern with three lines of CSS, and they run off the main thread.'
+pubDate: 2026-07-14
+tags: ['CSS', 'Performance']
+---
+
+{/* TODO: replace with your own writing. */}
+
+Every site I built for years had some version of this:
+
+```js
+const observer = new IntersectionObserver((entries) => {
+	for (const entry of entries) {
+		if (entry.isIntersecting) {
+			entry.target.classList.add('visible');
+			observer.unobserve(entry.target);
+		}
+	}
+});
+
+document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+```
+
+It works. It also ships JavaScript, runs on the main thread, and does nothing
+until hydration finishes — which on a slow connection means the user watches
+blank space where text should be.
+
+## The CSS version
+
+```css
+.reveal {
+	animation: reveal linear both;
+	animation-timeline: view();
+	animation-range: entry 0% cover 28%;
+}
+```
+
+`view()` creates a timeline tied to the element's position in the scrollport.
+`animation-range` says where in that journey the animation runs. No observer,
+no class toggling, no JavaScript at all — and it runs on the compositor, so it
+stays smooth while the main thread is busy.
+
+## The part that matters
+
+The naive version of this has a real failure mode. If you write the initial
+hidden state unconditionally:
+
+```css
+.reveal {
+	opacity: 0;
+}
+```
+
+then any browser without scroll-driven animation support shows a permanently
+blank page. Your content is gone.
+
+Put the whole thing behind a support query so the hidden state only exists
+where the animation that undoes it also exists:
+
+```css
+@supports (animation-timeline: view()) {
+	.reveal {
+		animation: reveal linear both;
+		animation-timeline: view();
+	}
+}
+```
+
+Unsupported browsers get the static page. That is progressive enhancement in
+its original sense: the feature is a bonus, never a dependency.
+
+## Staggering, for free
+
+The trick I did not expect: you do not need delay bookkeeping. Because each
+element gets its own `view()` timeline based on its own position, a column of
+cards staggers naturally as the page scrolls. The effect that used to need an
+index-based `transition-delay` is just geometry now.

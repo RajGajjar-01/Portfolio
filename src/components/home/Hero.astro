@@ -1,0 +1,39 @@
+---
+import Container from '../ui/Container.astro';
+import Button from '../ui/Button.astro';
+import { site } from '../../data/site';
+---
+
+<section class="relative flex min-h-[78svh] items-center py-24">
+	<Container>
+		<p class="text-muted reveal-once mb-6 font-mono text-xs tracking-widest uppercase">
+			{site.role}
+		</p>
+
+		<h1
+			class="reveal-once reveal-once-delay-1 max-w-4xl text-5xl leading-[1.05] sm:text-7xl lg:text-8xl"
+		>
+			{/* TODO: your positioning statement. One sentence, specific, not a job title. */}
+			I build software that <em class="text-accent italic">stays</em> fast.
+		</h1>
+
+		<p
+			class="text-muted reveal-once reveal-once-delay-2 mt-8 max-w-xl text-lg leading-relaxed text-balance"
+		>
+			{site.description}
+		</p>
+
+		<div class="reveal-once reveal-once-delay-3 mt-10 flex flex-wrap gap-3">
+			<Button href="/projects">View work</Button>
+			<Button href={`mailto:${site.email}`} variant="outline">Get in touch</Button>
+		</div>
+	</Container>
+
+	{/* Decorative scroll cue; hidden from assistive tech. */}
+	<div
+		class="text-muted absolute inset-x-0 bottom-8 hidden justify-center sm:flex"
+		aria-hidden="true"
+	>
+		<span class="animate-bounce font-mono text-xs">&darr;</span>
+	</div>
+</section>

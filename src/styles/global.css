@@ -1,233 +1,271 @@
 @import 'tailwindcss';
+@import './motion.css';
 
-@theme {
-	--color-gray-0: var(--gray-0);
-	--color-gray-50: var(--gray-50);
-	--color-gray-100: var(--gray-100);
-	--color-gray-200: var(--gray-200);
-	--color-gray-300: var(--gray-300);
-	--color-gray-400: var(--gray-400);
-	--color-gray-500: var(--gray-500);
-	--color-gray-600: var(--gray-600);
-	--color-gray-700: var(--gray-700);
-	--color-gray-800: var(--gray-800);
-	--color-gray-900: var(--gray-900);
-	--color-gray-999: var(--gray-999);
-
-	--color-accent-light: var(--accent-light);
-	--color-accent-regular: var(--accent-regular);
-	--color-accent-dark: var(--accent-dark);
-	--color-accent-overlay: var(--accent-overlay);
-	--color-accent-subtle-overlay: var(--accent-subtle-overlay);
-	--color-accent-text-over: var(--accent-text-over);
-	--color-menu: var(--accent-menu);
-	--color-link: var(--link-color);
-
-	--font-body: var(--font-body);
-	--font-brand: var(--font-brand);
-	--font-archivo: var(--font-archivo);
-
-	--shadow-sm: var(--shadow-sm);
-	--shadow-md: var(--shadow-md);
-	--shadow-lg: var(--shadow-lg);
-	--shadow-toggle: inset 0 0 0 1px var(--accent-overlay);
-
-	--text-sm: var(--text-sm);
-	--text-base: var(--text-base);
-	--text-md: var(--text-md);
-	--text-lg: var(--text-lg);
-	--text-xl: var(--text-xl);
-	--text-2xl: var(--text-2xl);
-	--text-3xl: var(--text-3xl);
-	--text-4xl: var(--text-4xl);
-	--text-5xl: var(--text-5xl);
-
-	--breakpoint-lg: 50em;
-}
-
-/* Global variables */
+/*
+  Runtime theme values. These are plain CSS variables (not @theme tokens) so
+  they can be swapped at runtime by the theme toggle. Tailwind reads them
+  through the `@theme inline` block below.
+*/
 :root {
-	/* Colors */
-	--gray-0: #090b11;
-	--gray-50: #141925;
-	--gray-100: #283044;
-	--gray-200: #3d4663;
-	--gray-300: #505d84;
-	--gray-400: #6474a2;
-	--gray-500: #8490b5;
-	--gray-600: #a3acc8;
-	--gray-700: #c3cadb;
-	--gray-800: #e3e6ee;
-	--gray-900: #f3f4f7;
-	--gray-999: #ffffff;
+	--bg: oklch(99% 0.002 265);
+	--surface: oklch(97% 0.003 265);
+	--fg: oklch(21% 0.012 265);
+	--muted: oklch(52% 0.014 265);
+	--border: oklch(90% 0.005 265);
+	--accent: oklch(55% 0.19 258);
+	--accent-fg: oklch(99% 0.002 265);
 
-	--accent-light: #c561f6;
-	--accent-regular: #7611a6;
-	--accent-dark: #1c0056;
-	--accent-overlay: hsla(280, 89%, 67%, 0.33);
-	--accent-subtle-overlay: var(--accent-overlay);
-	--accent-text-over: var(--gray-999);
-	--accent-menu: #f4d35e;
-
-	--link-color: var(--accent-regular);
-
-	/* Gradients */
-	--gradient-stop-1: var(--accent-light);
-	--gradient-stop-2: var(--accent-regular);
-	--gradient-stop-3: var(--accent-dark);
-	--gradient-subtle: linear-gradient(150deg, var(--gray-900) 19%, var(--gray-999) 150%);
-	--gradient-accent: linear-gradient(
-		150deg,
-		var(--gradient-stop-1),
-		var(--gradient-stop-2),
-		var(--gradient-stop-3)
-	);
-	--gradient-accent-orange: linear-gradient(
-		150deg,
-		#ca7879,
-		var(--accent-regular),
-		var(--accent-dark)
-	);
-	--gradient-stroke: linear-gradient(180deg, var(--gray-900), var(--gray-700));
-
-	/* Shadows */
-	--shadow-sm:
-		0px 6px 3px rgba(9, 11, 17, 0.01), 0px 4px 2px rgba(9, 11, 17, 0.01),
-		0px 2px 2px rgba(9, 11, 17, 0.02), 0px 0px 1px rgba(9, 11, 17, 0.03);
-	--shadow-md:
-		0px 28px 11px rgba(9, 11, 17, 0.01), 0px 16px 10px rgba(9, 11, 17, 0.03),
-		0px 7px 7px rgba(9, 11, 17, 0.05), 0px 2px 4px rgba(9, 11, 17, 0.06);
-	--shadow-lg:
-		0px 62px 25px rgba(9, 11, 17, 0.01), 0px 35px 21px rgba(9, 11, 17, 0.05),
-		0px 16px 16px rgba(9, 11, 17, 0.1), 0px 4px 9px rgba(9, 11, 17, 0.12);
-
-	/* Text Sizes */
-	--text-sm: 0.875rem;
-	--text-base: 1rem;
-	--text-md: 1.125rem;
-	--text-lg: 1.25rem;
-	--text-xl: 1.625rem;
-	--text-2xl: 2.125rem;
-	--text-3xl: 2.625rem;
-	--text-4xl: 3.5rem;
-	--text-5xl: 4.5rem;
-
-	/* Fonts */
-	--font-system:
-		system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-		"Open Sans", "Helvetica Neue", sans-serif;
-	--font-body: "Public Sans", var(--font-system);
-	--font-brand: Rubik, var(--font-system);
-	--font-archivo: Archivo, var(--font-system);
-
-	/* Transitions */
-	--theme-transition: 0.2s ease-in-out;
+	color-scheme: light;
 }
 
-:root.theme-dark {
-	--gray-0: #ffffff;
-	--gray-50: #f3f4f7;
-	--gray-100: #e3e6ee;
-	--gray-200: #c3cadb;
-	--gray-300: #a3acc8;
-	--gray-400: #8490b5;
-	--gray-500: #6474a2;
-	--gray-600: #505d84;
-	--gray-700: #3d4663;
-	--gray-800: #283044;
-	--gray-900: #141925;
-	--gray-999: #090b11;
+/* Explicit user choice wins. */
+:root[data-theme='dark'] {
+	--bg: oklch(17% 0.011 265);
+	--surface: oklch(21% 0.013 265);
+	--fg: oklch(95% 0.004 265);
+	--muted: oklch(68% 0.015 265);
+	--border: oklch(29% 0.014 265);
+	--accent: oklch(72% 0.15 258);
+	--accent-fg: oklch(17% 0.011 265);
 
-	--accent-light: #1c0056;
-	--accent-regular: #7611a6;
-	--accent-dark: #c561f6;
-	--accent-overlay: hsla(280, 89%, 67%, 0.33);
-	--accent-subtle-overlay: hsla(281, 81%, 36%, 0.33);
-	--accent-text-over: var(--gray-0);
+	color-scheme: dark;
+}
 
-	--link-color: var(--accent-dark);
+/* System preference, only when the user has not chosen explicitly. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		--bg: oklch(17% 0.011 265);
+		--surface: oklch(21% 0.013 265);
+		--fg: oklch(95% 0.004 265);
+		--muted: oklch(68% 0.015 265);
+		--border: oklch(29% 0.014 265);
+		--accent: oklch(72% 0.15 258);
+		--accent-fg: oklch(17% 0.011 265);
 
-	--gradient-stop-1: #4c11c6;
-	--gradient-subtle: linear-gradient(150deg, var(--gray-900) 19%, var(--gray-999) 81%);
-	--gradient-accent-orange: linear-gradient(
-		150deg,
-		#ca7879,
-		var(--accent-regular),
-		var(--accent-light)
-	);
-	--gradient-stroke: linear-gradient(180deg, var(--gray-600), var(--gray-800));
+		color-scheme: dark;
+	}
+}
 
-	--shadow-sm:
-		0px 6px 3px rgba(255, 255, 255, 0.01), 0px 4px 2px rgba(255, 255, 255, 0.01),
-		0px 2px 2px rgba(255, 255, 255, 0.02), 0px 0px 1px rgba(255, 255, 255, 0.03);
-	--shadow-md:
-		0px 28px 11px rgba(255, 255, 255, 0.01), 0px 16px 10px rgba(255, 255, 255, 0.03),
-		0px 7px 7px rgba(255, 255, 255, 0.05), 0px 2px 4px rgba(255, 255, 255, 0.06);
-	--shadow-lg:
-		0px 62px 25px rgba(255, 255, 255, 0.01), 0px 35px 21px rgba(255, 255, 255, 0.05),
-		0px 16px 16px rgba(255, 255, 255, 0.1), 0px 4px 9px rgba(255, 255, 255, 0.12);
+/*
+  `inline` makes Tailwind emit `var(--bg)` directly in utilities instead of
+  redefining the token, which is what lets the runtime swap above work.
+*/
+@theme inline {
+	--color-bg: var(--bg);
+	--color-surface: var(--surface);
+	--color-fg: var(--fg);
+	--color-muted: var(--muted);
+	--color-border: var(--border);
+	--color-accent: var(--accent);
+	--color-accent-fg: var(--accent-fg);
+
+	--font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+	--font-display: var(--font-instrument), ui-serif, Georgia, serif;
+
+	/* Reading measure for prose. */
+	--container-prose: 68ch;
 }
 
 @layer base {
-	html,
-	body {
-		min-height: 100%;
-		overflow-x: hidden;
-	}
-
-	body {
-		background-color: var(--gray-999);
-		color: var(--gray-200);
-		font-family: var(--font-body);
-		-webkit-font-smoothing: antialiased;
-		line-height: 1.5;
-	}
-
 	*,
-	*::after,
-	*::before {
-		box-sizing: border-box;
-		margin: 0;
+	*::before,
+	*::after {
+		border-color: var(--border);
 	}
 
-	img {
-		max-width: 100%;
-		height: auto;
+	html {
+		scroll-behavior: smooth;
+		/* Offset anchor targets so the sticky header doesn't cover them. */
+		scroll-padding-top: 6rem;
+		-webkit-text-size-adjust: 100%;
 	}
 
-	a {
-		color: var(--link-color);
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
+
+	/*
+	  Lenis owns smoothing while it is active. Leaving native smooth scrolling on
+	  makes the two fight over anchor navigations. The rule is scoped to the
+	  attribute so that without JS the native behaviour still applies.
+	*/
+	:root[data-smooth-scroll] {
+		scroll-behavior: auto;
+	}
+
+	body {
+		background-color: var(--bg);
+		color: var(--fg);
+		font-family: var(--font-sans);
+		font-synthesis-weight: none;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
 	}
 
 	h1,
 	h2,
 	h3,
-	h4,
-	h5 {
-		line-height: 1.1;
-		font-family: var(--font-brand);
-		font-weight: 600;
-		color: var(--gray-100);
-	}
-
-	h1 {
-		font-size: var(--text-5xl);
-	}
-
-	h2 {
-		font-size: var(--text-4xl);
-	}
-
-	h3 {
-		font-size: var(--text-3xl);
-	}
-
 	h4 {
-		font-size: var(--text-2xl);
+		font-family: var(--font-display);
+		font-weight: 400;
+		letter-spacing: -0.02em;
+		text-wrap: balance;
 	}
 
-	h5 {
-		font-size: var(--text-xl);
+	p,
+	li {
+		text-wrap: pretty;
+	}
+
+	/* Visible, consistent focus ring for keyboard users only. */
+	:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 3px;
+		border-radius: 2px;
+	}
+
+	::selection {
+		background-color: var(--accent);
+		color: var(--accent-fg);
 	}
 }
 
+@layer components {
+	/* Skip link — visible only once focused. */
+	.skip-link {
+		position: fixed;
+		top: 0.5rem;
+		left: 0.5rem;
+		z-index: 100;
+		padding: 0.5rem 1rem;
+		border-radius: 0.375rem;
+		background-color: var(--accent);
+		color: var(--accent-fg);
+		translate: 0 -150%;
+		transition: translate 150ms ease;
+	}
+
+	.skip-link:focus-visible {
+		translate: 0 0;
+	}
+
+	/*
+	  Typography for rendered Markdown. Hand-rolled rather than pulling in the
+	  typography plugin — it is a short list, and these already read from the
+	  theme tokens so dark mode needs no extra work.
+	*/
+	.prose {
+		max-width: var(--container-prose);
+		line-height: 1.75;
+		color: var(--fg);
+	}
+
+	.prose > * + * {
+		margin-block-start: 1.25em;
+	}
+
+	.prose h2 {
+		margin-block-start: 2.5em;
+		font-size: 1.75rem;
+		line-height: 1.25;
+	}
+
+	.prose h3 {
+		margin-block-start: 2em;
+		font-size: 1.35rem;
+		line-height: 1.3;
+	}
+
+	.prose h2 + *,
+	.prose h3 + * {
+		margin-block-start: 0.75em;
+	}
+
+	.prose a {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		text-decoration-thickness: 1px;
+	}
+
+	.prose a:hover {
+		text-decoration-thickness: 2px;
+	}
+
+	.prose ul,
+	.prose ol {
+		padding-inline-start: 1.5em;
+	}
+
+	.prose ul {
+		list-style: disc;
+	}
+
+	.prose ol {
+		list-style: decimal;
+	}
+
+	.prose li::marker {
+		color: var(--muted);
+	}
+
+	.prose li + li {
+		margin-block-start: 0.4em;
+	}
+
+	.prose blockquote {
+		padding-inline-start: 1.25em;
+		border-inline-start: 2px solid var(--accent);
+		color: var(--muted);
+		font-style: italic;
+	}
+
+	.prose :not(pre) > code {
+		padding: 0.15em 0.4em;
+		border-radius: 0.25rem;
+		background-color: var(--surface);
+		border: 1px solid var(--border);
+		font-size: 0.875em;
+	}
+
+	.prose pre {
+		padding: 1rem 1.25rem;
+		border: 1px solid var(--border);
+		border-radius: 0.5rem;
+		overflow-x: auto;
+		font-size: 0.875rem;
+		line-height: 1.6;
+	}
+
+	.prose img,
+	.prose video {
+		border-radius: 0.5rem;
+		border: 1px solid var(--border);
+	}
+
+	.prose hr {
+		margin-block: 3em;
+		border: 0;
+		border-top: 1px solid var(--border);
+	}
+
+	.prose table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.9375rem;
+	}
+
+	.prose th,
+	.prose td {
+		padding: 0.6em 0.8em;
+		border: 1px solid var(--border);
+		text-align: start;
+	}
+
+	.prose th {
+		background-color: var(--surface);
+		font-weight: 600;
+	}
+}
