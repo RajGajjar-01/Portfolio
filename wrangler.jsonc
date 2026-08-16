@@ -15,7 +15,7 @@
 
 	// Visitor counter storage. No "id" — Wrangler auto-provisions this KV
 	// namespace on first `wrangler deploy` (same as the adapter's own SESSION
-	// binding below).
+	// binding, which it injects into the generated dist/server/wrangler.json).
 	"kv_namespaces": [
 		{
 			"binding": "VISITOR_COUNT"

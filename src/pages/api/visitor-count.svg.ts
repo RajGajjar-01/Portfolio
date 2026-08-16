@@ -28,6 +28,9 @@ export const GET: APIRoute = async ({ cookies }) => {
 	let count = (await kv.get('count').then(Number)) || 0;
 
 	if (!cookies.has('visited')) {
+		// ponytail: read-then-write, not atomic — simultaneous first-time visitors
+		// can race and undercount by one. Fine for a vanity counter; a Durable
+		// Object would fix it if this ever needs to be exact.
 		count += 1;
 		await kv.put('count', String(count));
 		cookies.set('visited', '1', { path: '/', maxAge: YEAR_IN_SECONDS, httpOnly: true, sameSite: 'lax' });
