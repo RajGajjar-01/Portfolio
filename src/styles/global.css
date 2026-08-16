@@ -1,11 +1,7 @@
 @import 'tailwindcss';
 @import './motion.css';
 
-/*
-  Runtime theme values. These are plain CSS variables (not @theme tokens) so
-  they can be swapped at runtime by the theme toggle. Tailwind reads them
-  through the `@theme inline` block below.
-*/
+/* Runtime theme variables swapped by theme toggle; read via @theme inline. */
 :root {
 	--bg: oklch(99% 0.002 265);
 	--surface: oklch(97% 0.003 265);
@@ -46,10 +42,7 @@
 	}
 }
 
-/*
-  `inline` makes Tailwind emit `var(--bg)` directly in utilities instead of
-  redefining the token, which is what lets the runtime swap above work.
-*/
+/* `inline` emits CSS variables directly in utilities for runtime theme switching. */
 @theme inline {
 	--color-bg: var(--bg);
 	--color-surface: var(--surface);
@@ -86,11 +79,7 @@
 		}
 	}
 
-	/*
-	  Lenis owns smoothing while it is active. Leaving native smooth scrolling on
-	  makes the two fight over anchor navigations. The rule is scoped to the
-	  attribute so that without JS the native behaviour still applies.
-	*/
+	/* Disable native smooth scroll when Lenis is active to avoid conflicts. */
 	:root[data-smooth-scroll] {
 		scroll-behavior: auto;
 	}
@@ -151,11 +140,7 @@
 		translate: 0 0;
 	}
 
-	/*
-	  Typography for rendered Markdown. Hand-rolled rather than pulling in the
-	  typography plugin — it is a short list, and these already read from the
-	  theme tokens so dark mode needs no extra work.
-	*/
+	/* Typography styles for rendered Markdown prose. */
 	.prose {
 		max-width: var(--container-prose);
 		line-height: 1.75;

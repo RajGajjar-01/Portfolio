@@ -1,46 +1,19 @@
-/*
-  The animation layer. Zero JavaScript.
+/* Animation layer using scroll-driven timelines and native View Transitions. */
 
-  Everything here runs on scroll-driven timelines or the native View Transition
-  API, both of which animate off the main thread. Two guards keep it safe:
-
-    1. `@supports (animation-timeline: view())` — browsers without scroll-driven
-       animations never see the hidden initial state, so content is always
-       readable rather than stuck at opacity 0.
-    2. `prefers-reduced-motion` — motion is opt-in, not opt-out.
-*/
 
 /* Native cross-document transitions. No client router, no JS. */
 @view-transition {
 	navigation: auto;
 }
 
-/*
-  Reading progress bar.
-
-  Driven by `--scroll-progress`, which SmoothScroll.astro publishes on :root.
-
-  `animation-timeline: scroll()` would also work here and would need no JS. It
-  is not used because hiding the native scrollbar (below) is an accessibility
-  trade-off that should only happen when the replacement cue is definitely
-  working. `@supports` proves the browser parses the property; the runtime
-  attribute the script sets proves the bar is actually being driven.
-
-  Since Lenis moves the real scroll position, either approach would track it.
-
-  Defaulting to 0 keeps the bar invisible if the script never runs.
-*/
+/* Reading progress bar driven by --scroll-progress from SmoothScroll. */
 .scroll-progress {
 	scale: var(--scroll-progress, 0) 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
 	@supports (animation-timeline: view()) {
-		/*
-		  Fade and rise as the element scrolls into view. Because each element
-		  gets its own `view()` timeline, a column of them staggers naturally
-		  as the page scrolls — no delay bookkeeping needed.
-		*/
+		/* Fade and rise as the element scrolls into view. */
 		.reveal {
 			animation: reveal linear both;
 			animation-timeline: view();
@@ -71,14 +44,7 @@
 
 	}
 
-	/*
-	  On pages that have a working progress bar, it already communicates scroll
-	  position, so the native vertical scrollbar is redundant — hide it.
-
-	  Both conditions must hold: the bar must be on the page (`:has`), and the
-	  script must actually be driving it (`[data-smooth-scroll]`). If JS never
-	  runs, the scrollbar stays, so the reader is never left with no cue at all.
-	*/
+	/* Hide native vertical scrollbar only when custom progress bar is active. */
 	:root[data-smooth-scroll]:has(.scroll-progress) {
 		scrollbar-width: none;
 	}
@@ -96,11 +62,7 @@
 		animation: fade-in 260ms cubic-bezier(0, 0, 0.2, 1) both;
 	}
 
-	/*
-	  Elements tagged with a matching `view-transition-name` on both pages morph
-	  between them — e.g. a project card cover becoming the case-study hero.
-	  Set the name inline where the pair lives.
-	*/
+	/* Shared element morph transitions using matching view-transition-name. */
 	::view-transition-group(*) {
 		animation-duration: 320ms;
 		animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);

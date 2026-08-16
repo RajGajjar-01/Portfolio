@@ -4,8 +4,7 @@ import { z } from 'astro/zod';
 
 const projects = defineCollection({
 	loader: glob({ base: './src/content/projects', pattern: '**/*.{md,mdx}' }),
-	// `image()` makes the cover a real asset reference, so <Image> can optimise
-	// it at build time and a bad path fails the build instead of the page.
+	// `image()` validates assets at build time for optimization with <Image>.
 	schema: ({ image }) =>
 		z.object({
 			title: z.string(),

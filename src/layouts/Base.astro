@@ -65,11 +65,7 @@ const ogImage = image ? new URL(image, Astro.site) : undefined;
 		<Font cssVariable="--font-inter" preload />
 		<Font cssVariable="--font-instrument" preload />
 
-		{/*
-			Runs before first paint to avoid a flash of the wrong theme. Only an
-			explicit choice is stored — no entry means "follow the system", which
-			the stylesheet already handles.
-		*/}
+		{/* Runs before first paint to avoid a theme flash. */}
 		<script is:inline>
 			const theme = localStorage.getItem('theme');
 			if (theme === 'light' || theme === 'dark') {

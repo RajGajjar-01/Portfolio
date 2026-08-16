@@ -1,6 +1,4 @@
-// TODO: replace every entry below with your real history.
-// This is plain data rather than a content collection because it renders on
-// exactly one page — a collection would be indirection with no payoff.
+// TODO: replace with real history; plain data used since it renders on one page.
 
 export interface ResumeItem {
 	title: string;

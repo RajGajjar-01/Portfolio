@@ -1,5 +1,4 @@
 // Single source of truth for identity, nav, and social links.
-// Edit this file first — everything else reads from it.
 
 export const site = {
 	name: 'Raj Gajjar',

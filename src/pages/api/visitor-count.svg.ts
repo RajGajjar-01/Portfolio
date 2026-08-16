@@ -20,17 +20,13 @@ function ordinal(n: number) {
 
 const YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
 
-// Uniqueness is per-browser via cookie, not per-person — clearing cookies,
-// incognito, or a different device all look like a new visitor. No lightweight
-// counter can do better than this without login or IP tracking.
+// Tracks unique visits per browser using a persistent cookie.
 export const GET: APIRoute = async ({ cookies }) => {
 	const kv = env.VISITOR_COUNT;
 	let count = (await kv.get('count').then(Number)) || 0;
 
 	if (!cookies.has('visited')) {
-		// ponytail: read-then-write, not atomic — simultaneous first-time visitors
-		// can race and undercount by one. Fine for a vanity counter; a Durable
-		// Object would fix it if this ever needs to be exact.
+		// Non-atomic read-then-write counter increment.
 		count += 1;
 		await kv.put('count', String(count));
 		cookies.set('visited', '1', { path: '/', maxAge: YEAR_IN_SECONDS, httpOnly: true, sameSite: 'lax' });

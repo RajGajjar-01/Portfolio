@@ -1,13 +1,5 @@
 ---
-/*
-  Sliding-pill nav: a cursor tracks the hovered/focused tab and eases between
-  them. Links are plain anchors that work with no JS at all — the script only
-  adds the moving pill on top; it never intercepts navigation.
-
-  Defaults to sitting under whichever tab matches the current page, and
-  returns there on mouseleave/blur rather than disappearing, so the page
-  itself always stays visible as "selected" — not just a hover effect.
-*/
+// Sliding-pill nav cursor that tracks hovered/focused tabs and active page.
 import { nav } from '../../data/site';
 
 const path = Astro.url.pathname;
@@ -83,8 +75,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 		color: var(--fg);
 	}
 
-	/* The tab currently under the pill needs the inverse of the pill's fill
-	   (--fg) to stay readable, regardless of theme. */
+	/* Inverse tab text color when covered by the cursor pill for readability. */
 	.nav-tabs__link[data-covered] {
 		color: var(--bg);
 	}
