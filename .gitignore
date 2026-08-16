@@ -2,6 +2,10 @@
 dist/
 # generated types
 .astro/
+worker-configuration.d.ts
+
+# local Cloudflare Workers dev state (KV/cache/etc. emulated by `wrangler dev`)
+.wrangler/
 
 # dependencies
 node_modules/
@@ -22,3 +26,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# editor settings
+.vscode/
