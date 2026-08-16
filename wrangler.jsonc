@@ -1,0 +1,24 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "portfolio",
+	"compatibility_date": "2026-08-16",
+	"compatibility_flags": ["nodejs_compat"],
+
+	// "main" is intentionally omitted here: @astrojs/cloudflare generates its own
+	// wrangler config (merged with this file) at dist/server/wrangler.json after
+	// `astro build`. Deploy with that generated config, not this one directly
+	// (see the "deploy" script in package.json).
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+
+	// Visitor counter storage. No "id" — Wrangler auto-provisions this KV
+	// namespace on first `wrangler deploy` (same as the adapter's own SESSION
+	// binding below).
+	"kv_namespaces": [
+		{
+			"binding": "VISITOR_COUNT"
+		}
+	]
+}

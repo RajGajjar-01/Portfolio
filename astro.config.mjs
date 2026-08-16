@@ -3,6 +3,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import cloudflare from '@astrojs/cloudflare';
 
 // TODO: replace with your real domain before deploying.
 // Sitemap and RSS need an absolute URL to emit correct links.
@@ -11,6 +12,8 @@ const SITE = 'https://example.com';
 // https://astro.build/config
 export default defineConfig({
 	site: SITE,
+
+	adapter: cloudflare(),
 
 	integrations: [mdx(), sitemap()],
 
