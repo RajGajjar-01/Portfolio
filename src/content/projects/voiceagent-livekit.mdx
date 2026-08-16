@@ -1,0 +1,24 @@
+---
+title: 'Voice Agent'
+summary: 'A voice assistant you talk to over a live call — manages your to-do list and Google Calendar, with every conversation saved and resumable.'
+tags: ['LiveKit', 'FastAPI', 'React', 'Groq', 'Deepgram', 'ElevenLabs']
+role: 'Solo'
+year: 2026
+featured: true
+order: 2
+repo: 'https://github.com/RajGajjar-01/VoiceAgent-Livekit'
+---
+
+Sign in with Google, hit "Start talking," and ask it to manage your to-do
+list, book a calendar event, or read back your day — all over a live voice
+call. Three pieces work together: a FastAPI backend, a React frontend, and a
+separate voice agent worker that actually joins the LiveKit call and talks.
+
+- **Tasks & calendar by voice** — add, complete, or delete tasks; book Google Calendar events with automatic double-booking checks; invite attendees; ask what's on the schedule.
+- **Persistent conversations** — every call is transcribed and saved, so you can read back or continue an old conversation later.
+- **Speech pipeline** — Deepgram for transcription, Groq (Llama 3.3 70B) for the LLM, ElevenLabs for text-to-speech, with a Cloudflare Workers AI fallback that kicks in automatically if Groq's rate limit is hit mid-conversation.
+- **Fresh room per call** — LiveKit only auto-dispatches a worker to a newly created room, not a reused one, so every conversation gets its own room name to guarantee a live agent picks it up.
+
+The backend and the voice worker deploy as separate long-running services on
+purpose: the backend is a normal request/response API, the worker holds a live
+audio connection open for the length of a call and needs its own lifecycle.

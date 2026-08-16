@@ -1,0 +1,26 @@
+---
+title: 'Sage'
+summary: 'An autonomous coding CLI agent: plans a change, waits for approval, then executes it inside a sandboxed workspace.'
+tags: ['Python', 'FastAPI', 'SQLite']
+role: 'Solo'
+year: 2026
+featured: true
+order: 1
+repo: 'https://github.com/RajGajjar-01/Sage'
+---
+
+A CLI coding agent, rewritten in Python from an earlier .NET/Spectre.Console
+prototype. It explores a codebase, writes a plan, waits for explicit approval,
+then executes step by step — every file and shell operation confined to a
+single configured workspace directory, enforced at execution time rather than
+just checked upfront.
+
+- Plan Mode / Execute Mode workflow with mandatory approval before anything runs.
+- Multi-provider LLM support (Groq, ZhipuAI) with automatic round-robin fallback on rate limits.
+- Resumable sessions backed by SQLite, so a conversation survives a restart.
+- A Tavily-backed prompt enhancer that expands a vague first message into a fuller spec.
+- A versioned FastAPI surface (`/api/v1`) alongside the CLI for session and provider data.
+
+No `.env` required to start — it boots straight into a menu with zero
+providers configured, and `/connect` adds one on the fly, saved to the local
+database without a restart.
