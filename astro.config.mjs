@@ -5,20 +5,19 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
 
-// TODO: replace with your real domain before deploying.
-// Sitemap and RSS need an absolute URL to emit correct links.
+// TODO: replace with your real domain before deploying (needed for sitemap/RSS).
 const SITE = 'https://example.com';
 
 // https://astro.build/config
 export default defineConfig({
 	site: SITE,
 
-	adapter: cloudflare(),
+	// Build-time optimized images; skip provisioning Cloudflare Images binding.
+	adapter: cloudflare({ imageService: 'compile' }),
 
 	integrations: [mdx(), sitemap()],
 
-	// Self-hosted, subset and preloaded at build time. No third-party font request,
-	// no FOUT, no layout shift.
+	// Self-hosted, subset and preloaded fonts to prevent FOUT and third-party requests.
 	fonts: [
 		{
 			provider: fontProviders.fontsource(),
