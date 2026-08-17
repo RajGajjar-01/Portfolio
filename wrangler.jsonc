@@ -8,12 +8,5 @@
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"
-	},
-
-	// KV namespace auto-provisioned by Wrangler on deploy for visitor counter.
-	"kv_namespaces": [
-		{
-			"binding": "VISITOR_COUNT"
-		}
-	]
+	}
 }

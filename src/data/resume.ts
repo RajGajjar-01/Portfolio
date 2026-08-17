@@ -5,7 +5,7 @@ export interface ResumeItem {
 	org: string;
 	location?: string;
 	start: string;
-	/** Omit for current roles; renders as "Present". */
+	/** Omit for current roles (renders as "Present"). Set equal to `start` for a single-month role. */
 	end?: string;
 	summary?: string;
 	points?: string[];
@@ -16,54 +16,91 @@ export const resumePdf: string | null = null;
 
 export const experience: ResumeItem[] = [
 	{
-		title: 'Senior Software Engineer',
-		org: 'Company Name',
-		location: 'Remote',
-		start: '2024',
-		summary: 'Platform and performance work across the product surface.',
+		title: 'Associate AI Engineer',
+		org: 'E2M Solutions',
+		location: 'Ahmedabad, India',
+		start: 'July 2026',
 		points: [
-			'Built an edge caching layer that cut p95 API latency from 340ms to 28ms.',
-			'Led the migration of 12 services onto a versioned event schema registry, ending consumer-breaking deploys.',
-			'Mentored three engineers through their first on-call rotations.',
+			'Building AI-powered solutions for digital agency clients, from initial architecture through production deployment.',
+			'Built a rich-text editor and automated document generation workflows with e-signature integration and audit logging.',
+			'Cut client turnaround time on a core workflow by an estimated 60%.',
 		],
 	},
 	{
-		title: 'Software Engineer',
-		org: 'Previous Company',
-		location: 'Remote',
-		start: '2022',
-		end: '2024',
-		points: [
-			'Shipped the design token pipeline that unified web, iOS, and Android theming.',
-			'Reduced CI feedback time from 22 minutes to 6 by parallelising the test suite.',
-		],
+		title: 'AI/ML Engineering Intern',
+		org: 'E2M Solutions',
+		location: 'Ahmedabad, India',
+		start: 'January 2026',
+		end: 'June 2026',
+		points: ['Developed custom AI workflows and LLM-powered automation tools supporting client-facing AI products.'],
 	},
-];
-
-export const education: ResumeItem[] = [
 	{
-		title: 'B.E. Computer Engineering',
-		org: 'University Name',
-		start: '2018',
-		end: '2022',
+		title: 'Full Stack Developer Intern',
+		org: 'Asambhav Solutions',
+		location: 'Ahmedabad, India',
+		start: 'December 2025',
+		end: 'December 2025',
+		points: [
+			'Built AutoLead, a RAG-based conversational agent using LangChain and LangGraph with a Django REST Framework backend, enabling natural language booking of calls, test drives, and service appointments with semantic search over pgvector embeddings.',
+		],
 	},
 ];
 
 export const skills: { group: string; items: string[] }[] = [
 	{
-		group: 'Languages',
-		items: ['TypeScript', 'JavaScript', 'Go', 'Python', 'SQL'],
+		group: 'Programming Languages',
+		items: ['Python', 'JavaScript', 'Java', 'C++', 'SQL', 'HTML5', 'CSS3'],
 	},
 	{
-		group: 'Frontend',
-		items: ['React', 'Astro', 'Tailwind CSS', 'Web performance', 'Accessibility'],
+		group: 'Web Development',
+		items: [
+			'FastAPI',
+			'Django',
+			'Django REST Framework',
+			'React.js',
+			'Next.js',
+			'Node.js',
+			'Express.js',
+			'Astro.js',
+			'REST APIs',
+			'WebSockets',
+			'OAuth 2.0',
+		],
 	},
 	{
-		group: 'Backend',
-		items: ['Node.js', 'PostgreSQL', 'Redis', 'Kafka', 'REST', 'gRPC'],
+		group: 'AI and Machine Learning',
+		items: [
+			'LangChain',
+			'LangGraph',
+			'LangSmith',
+			'LiveKit',
+			'Retrieval-Augmented Generation (RAG)',
+			'LLM Agents',
+			'Tool-Calling Agents',
+			'YOLO',
+			'NumPy',
+			'Pandas',
+			'Scikit-learn',
+		],
 	},
 	{
-		group: 'Infrastructure',
-		items: ['Docker', 'Kubernetes', 'AWS', 'Cloudflare', 'Terraform', 'CI/CD'],
+		group: 'Databases',
+		items: ['PostgreSQL', 'pgvector', 'MongoDB', 'MySQL', 'SQLite', 'Redis', 'Pinecone'],
+	},
+	{
+		group: 'Tools and Platforms',
+		items: [
+			'Git',
+			'GitHub',
+			'GitHub Actions',
+			'Docker',
+			'Linux',
+			'Railway',
+			'Supabase',
+			'Tailwind CSS',
+			'shadcn/ui',
+			'pytest',
+			'Selenium',
+		],
 	},
 ];
