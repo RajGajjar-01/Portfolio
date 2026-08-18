@@ -82,10 +82,12 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 </style>
 
 <script>
-	const container = document.querySelector<HTMLUListElement>('[data-nav-tabs]');
-	const cursor = container?.querySelector<HTMLLIElement>('[data-nav-cursor]');
+	function init() {
+		const container = document.querySelector<HTMLUListElement>('[data-nav-tabs]');
+		const cursor = container?.querySelector<HTMLLIElement>('[data-nav-cursor]');
 
-	if (container && cursor) {
+		if (!container || !cursor) return;
+
 		const links = [...container.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
 		const active = links.find((link) => link.getAttribute('aria-current') === 'page') ?? null;
 
@@ -93,19 +95,23 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 			for (const link of links) link.removeAttribute('data-covered');
 
 			if (!target) {
-				cursor!.removeAttribute('data-visible');
+				cursor.removeAttribute('data-visible');
 				return;
 			}
 
-			const containerRect = container!.getBoundingClientRect();
+			const containerRect = container.getBoundingClientRect();
 			const rect = target.getBoundingClientRect();
-			cursor!.style.translate = `${rect.left - containerRect.left}px 0`;
-			cursor!.style.width = `${rect.width}px`;
-			cursor!.setAttribute('data-visible', '');
+			cursor.style.translate = `${rect.left - containerRect.left}px 0`;
+			cursor.style.width = `${rect.width}px`;
+			cursor.setAttribute('data-visible', '');
 			target.setAttribute('data-covered', '');
 		};
 
 		place(active);
+
+		// Container persists across soft navigations; only wire listeners once.
+		if (container.dataset.wired) return;
+		container.dataset.wired = 'true';
 
 		for (const link of links) {
 			link.addEventListener('mouseenter', () => place(link));
@@ -114,7 +120,11 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 
 		container.addEventListener('mouseleave', () => place(active));
 		container.addEventListener('focusout', (event) => {
-			if (!container!.contains(event.relatedTarget as Node)) place(active);
+			if (!container.contains(event.relatedTarget as Node)) place(active);
 		});
 	}
+
+	// Header persists across Astro soft navigations, so this script only
+	// parses once — rerun on every navigation to reposition for the new page.
+	document.addEventListener('astro:page-load', init);
 </script>

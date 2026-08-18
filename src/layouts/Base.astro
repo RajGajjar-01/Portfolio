@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import { site } from '../data/site';
 import type { SeoProps } from '../lib/seo';
 import '../styles/global.css';
@@ -64,6 +65,8 @@ const ogImage = image ? new URL(image, Astro.site) : undefined;
 		{/* Self-hosted and preloaded, so text paints in the right font immediately. */}
 		<Font cssVariable="--font-inter" preload />
 		<Font cssVariable="--font-instrument" preload />
+
+		<ClientRouter />
 
 		{/* Runs before first paint to avoid a theme flash. */}
 		<script is:inline>
