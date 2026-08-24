@@ -62,15 +62,24 @@
 </style>
 
 <script is:inline>
-	document.getElementById('theme-toggle')?.addEventListener('click', () => {
-		const root = document.documentElement;
-		// With no explicit choice yet, the effective theme is the system one.
-		const current =
-			root.dataset.theme ||
-			(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-		const next = current === 'dark' ? 'light' : 'dark';
+	function initThemeToggle() {
+		const button = document.getElementById('theme-toggle');
+		// Astro soft navigation persists this element; only wire it once.
+		if (!button || button.dataset.wired) return;
+		button.dataset.wired = 'true';
 
-		root.dataset.theme = next;
-		localStorage.setItem('theme', next);
-	});
+		button.addEventListener('click', () => {
+			const root = document.documentElement;
+			// With no explicit choice yet, the effective theme is the system one.
+			const current =
+				root.dataset.theme ||
+				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+			const next = current === 'dark' ? 'light' : 'dark';
+
+			root.dataset.theme = next;
+			localStorage.setItem('theme', next);
+		});
+	}
+
+	document.addEventListener('astro:page-load', initThemeToggle);
 </script>

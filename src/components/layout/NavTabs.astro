@@ -82,6 +82,10 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 </style>
 
 <script>
+	// Updated on every init() run so listeners wired only once still react
+	// to whichever page is current, instead of closing over a stale link.
+	let currentActive: HTMLAnchorElement | null = null;
+
 	function init() {
 		const container = document.querySelector<HTMLUListElement>('[data-nav-tabs]');
 		const cursor = container?.querySelector<HTMLLIElement>('[data-nav-cursor]');
@@ -89,7 +93,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 		if (!container || !cursor) return;
 
 		const links = [...container.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
-		const active = links.find((link) => link.getAttribute('aria-current') === 'page') ?? null;
+		currentActive = links.find((link) => link.getAttribute('aria-current') === 'page') ?? null;
 
 		const place = (target: HTMLAnchorElement | null) => {
 			for (const link of links) link.removeAttribute('data-covered');
@@ -107,7 +111,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 			target.setAttribute('data-covered', '');
 		};
 
-		place(active);
+		place(currentActive);
 
 		// Container persists across soft navigations; only wire listeners once.
 		if (container.dataset.wired) return;
@@ -118,9 +122,9 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 			link.addEventListener('focus', () => place(link));
 		}
 
-		container.addEventListener('mouseleave', () => place(active));
+		container.addEventListener('mouseleave', () => place(currentActive));
 		container.addEventListener('focusout', (event) => {
-			if (!container.contains(event.relatedTarget as Node)) place(active);
+			if (!container.contains(event.relatedTarget as Node)) place(currentActive);
 		});
 	}
 
