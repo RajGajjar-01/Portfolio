@@ -23,7 +23,7 @@ const { tag, posts } = Astro.props;
 
 <Page
 	title={`Posts tagged “${tag}”`}
-	description={`Writing tagged ${tag} — ${posts.length} post${posts.length === 1 ? '' : 's'}.`}
+	description={`Writing tagged ${tag}: ${posts.length} post${posts.length === 1 ? '' : 's'}.`}
 >
 	<Container class="py-16 sm:py-24">
 		<header class="mb-14">

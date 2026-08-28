@@ -46,11 +46,7 @@ const personSchema = {
 
 	{
 		posts.length > 0 && (
-			<Section
-				eyebrow="Writing"
-				title="Recent posts"
-				action={{ label: 'All posts', href: '/blog' }}
-			>
+			<Section title="Recent posts" action={{ label: 'All posts', href: '/blog' }}>
 				<div>
 					{posts.map((post) => (
 						<PostCard post={post} />

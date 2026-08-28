@@ -53,7 +53,7 @@
 	--color-accent-fg: var(--accent-fg);
 
 	--font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-	--font-display: var(--font-instrument), ui-serif, Georgia, serif;
+	--font-display: var(--font-serif-display), ui-serif, Georgia, serif;
 
 	/* Reading measure for prose. */
 	--container-prose: 68ch;

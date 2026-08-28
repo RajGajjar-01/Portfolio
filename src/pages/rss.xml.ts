@@ -7,7 +7,7 @@ export const GET: APIRoute = async (context) => {
 	const posts = await getPosts();
 
 	return rss({
-		title: `${site.name} — Writing`,
+		title: `${site.name} | Writing`,
 		description: site.description,
 		// `context.site` comes from `site` in astro.config.mjs.
 		site: context.site!,

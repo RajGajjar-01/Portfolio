@@ -39,8 +39,8 @@ export default defineConfig({
 		},
 		{
 			provider: fontProviders.fontsource(),
-			name: 'Instrument Serif',
-			cssVariable: '--font-instrument',
+			name: 'Playfair Display',
+			cssVariable: '--font-serif-display',
 			weights: [400],
 			subsets: ['latin'],
 			styles: ['normal', 'italic'],
