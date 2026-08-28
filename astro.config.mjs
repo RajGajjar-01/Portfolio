@@ -12,6 +12,16 @@ const SITE = 'https://example.com';
 export default defineConfig({
 	site: SITE,
 
+	// Head start on soft navigation: hover/focus fires the fetch before the
+	// click lands, so ClientRouter swaps land near-instantly. Nav is a small,
+	// always-visible sticky header, so 'hover' beats 'viewport' (nothing to
+	// gain prefetching links that are never off-screen) and beats 'tap' (no
+	// head start at all on desktop).
+	prefetch: {
+		prefetchAll: true,
+		defaultStrategy: 'hover',
+	},
+
 	// Build-time optimized images; skip provisioning Cloudflare Images binding.
 	adapter: cloudflare({ imageService: 'compile' }),
 
