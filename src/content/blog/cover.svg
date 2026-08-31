@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+	<rect width="1600" height="900" fill="oklch(17% 0.011 265)" />
+	<g stroke="oklch(29% 0.014 265)" stroke-width="1">
+		<line x1="0" y1="300" x2="1600" y2="300" />
+		<line x1="0" y1="600" x2="1600" y2="600" />
+		<line x1="533" y1="0" x2="533" y2="900" />
+		<line x1="1066" y1="0" x2="1066" y2="900" />
+	</g>
+	<g transform="translate(800 450)">
+		<circle r="210" fill="none" stroke="oklch(72% 0.15 258)" stroke-width="1.5" opacity="0.35" />
+		<g transform="translate(0 -18)">
+			<rect x="-70" y="-10" width="140" height="120" rx="16" fill="oklch(21% 0.013 265)" stroke="oklch(72% 0.15 258)" stroke-width="4" />
+			<path d="M -40 -10 V -55 A 40 40 0 0 1 40 -55 V -10" fill="none" stroke="oklch(72% 0.15 258)" stroke-width="10" stroke-linecap="round" />
+			<circle cx="0" cy="45" r="12" fill="oklch(72% 0.15 258)" />
+			<rect x="-6" y="45" width="12" height="34" rx="4" fill="oklch(72% 0.15 258)" />
+		</g>
+	</g>
+	<text x="120" y="150" font-family="ui-monospace, monospace" font-size="22" letter-spacing="4" fill="oklch(68% 0.015 265)">HOW SSL/TLS ACTUALLY WORKS</text>
+</svg>

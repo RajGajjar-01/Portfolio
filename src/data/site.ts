@@ -3,14 +3,18 @@
 export const site = {
 	name: 'Raj Gajjar',
 	// Shown in the hero and the <title> suffix.
-	role: 'Software Engineer',
-	// One line. Used as the default meta description and OG description.
+	role: 'AI Engineer',
+	// One line, kept under 160 chars so search results show it whole.
 	description:
-		'Software engineer building fast, accessible web applications. Currently focused on distributed systems and developer tooling.',
-	// Must match `site` in astro.config.mjs.
-	url: 'https://example.com',
+		'AI engineer in Ahmedabad building LLM-backed systems with Python, FastAPI, and LangGraph. I write about security, networking, and how things actually work.',
+	// Imported by astro.config.mjs, so this is the only place the origin is written.
+	url: 'https://portfolio.irajgajjar-2004.workers.dev',
 	locale: 'en',
 	email: 'irajgajjar.2004@gmail.com',
+	/** Without the @; used for twitter:creator. */
+	twitter: 'rajgajjar_11',
+	/** Feeds Person.homeLocation and the resume header. */
+	location: { city: 'Ahmedabad', region: 'Gujarat', country: 'India' },
 } as const;
 
 export const nav = [

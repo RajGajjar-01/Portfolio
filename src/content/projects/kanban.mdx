@@ -1,5 +1,5 @@
 ---
-title: 'Kanban'
+title: 'Kanban: a Django task board with drag-and-drop'
 summary: 'A Kanban board for task and project management, with boards, columns, and drag-and-drop task organization.'
 tags: ['Django', 'TailwindCSS', 'DaisyUI']
 role: 'Solo'
@@ -7,16 +7,24 @@ year: 2025
 featured: true
 order: 3
 repo: 'https://github.com/RajGajjar-01/Kanban'
+cover: './images/kanban.png'
+coverAlt: 'Kanban board application — task management with boards, columns, and drag-and-drop'
 ---
 
 A Kanban board application built on Django: create multiple boards, organize
 tasks across columns, and manage it all behind Google-style authentication via
 Django Allauth.
 
+## What it does
+
 - Multiple boards per user, each with its own set of columns and tasks.
 - Django REST Framework API alongside the server-rendered views.
 - Styled with TailwindCSS v4 and DaisyUI, with built-in light/dark themes.
 - User profiles with avatar support, backed by Django's ORM and Pillow for image handling.
 
+## Build setup
+
 The frontend is server-rendered Django templates with Tailwind's standalone
-CLI compiling styles — no Node build step required to run it.
+CLI compiling styles — no Node build step required to run it. That keeps the
+deploy a single Python process: no bundler, no separate node_modules to
+install, and no build step that can drift from what is running in production.

@@ -1,4 +1,4 @@
-// TODO: replace with real history; plain data used since it renders on one page.
+// Plain data; it renders on one page and feeds Person.knowsAbout / worksFor in schema.ts.
 
 export interface ResumeItem {
 	title: string;
@@ -32,7 +32,9 @@ export const experience: ResumeItem[] = [
 		location: 'Ahmedabad, India',
 		start: 'January 2026',
 		end: 'June 2026',
-		points: ['Developed custom AI workflows and LLM-powered automation tools supporting client-facing AI products.'],
+		points: [
+			'Developed custom AI workflows and LLM-powered automation tools supporting client-facing AI products.',
+		],
 	},
 	{
 		title: 'Full Stack Developer Intern',
