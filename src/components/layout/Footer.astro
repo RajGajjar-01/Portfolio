@@ -6,10 +6,11 @@ import { site, socials } from '../../data/site';
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-border mt-auto border-t py-12">
+<footer class="border-border mt-auto border-t py-12 print:hidden">
 	<Container class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 		<p class="text-muted text-sm">
-			&copy; {year} {site.name}
+			&copy; {year}
+			{site.name}
 		</p>
 
 		<ul class="flex flex-wrap items-center gap-x-5 gap-y-2">

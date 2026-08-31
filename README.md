@@ -5,13 +5,13 @@ scrolling, and nothing else.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| `pnpm dev` | Start the dev server at `localhost:4321` |
-| `pnpm build` | Build to `./dist` |
-| `pnpm preview` | Preview the production build locally |
-| `pnpm check` | Typecheck `.astro` and `.ts` files |
-| `pnpm deploy` | Build and deploy to Cloudflare Workers |
+| Command        | Description                              |
+| -------------- | ---------------------------------------- |
+| `pnpm dev`     | Start the dev server at `localhost:4321` |
+| `pnpm build`   | Build to `./dist`                        |
+| `pnpm preview` | Preview the production build locally     |
+| `pnpm check`   | Typecheck `.astro` and `.ts` files       |
+| `pnpm deploy`  | Build and deploy to Cloudflare Workers   |
 
 The project convention is to run the dev server detached:
 

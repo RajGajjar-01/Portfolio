@@ -22,18 +22,13 @@ const { title, eyebrow, action, id, width = 'default', class: className = '' } =
 				<header class="reveal mb-12 flex flex-wrap items-end justify-between gap-4">
 					<div>
 						{eyebrow && (
-							<p class="text-muted mb-2 font-mono text-xs tracking-widest uppercase">
-								{eyebrow}
-							</p>
+							<p class="text-muted mb-2 font-mono text-xs tracking-widest uppercase">{eyebrow}</p>
 						)}
 						{title && <h2 class="text-3xl sm:text-4xl">{title}</h2>}
 					</div>
 
 					{action && (
-						<a
-							href={action.href}
-							class="text-muted hover:text-fg group text-sm transition-colors"
-						>
+						<a href={action.href} class="text-muted hover:text-fg group text-sm transition-colors">
 							{action.label}
 							<span
 								class="inline-block transition-transform group-hover:translate-x-0.5"

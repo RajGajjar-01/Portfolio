@@ -1,23 +1,25 @@
 ---
 import Section from '../ui/Section.astro';
 
-// TODO: replace with your real background (keep to 3 short paragraphs).
 const paragraphs = [
-	'I am a software engineer focused on the parts of a system users actually feel: page load, input latency, and the failure modes nobody plans for. Most of my work sits between the browser and the services behind it.',
-	'Recently I have been working on distributed systems and developer tooling, building the internal platforms that let other engineers ship without thinking about infrastructure.',
-	'Outside of work I write about what I learn, mostly performance and architecture. Some of it ends up on this site.',
+	'I am an AI engineer at E2M Solutions in Ahmedabad, where I take AI features for digital agency clients from architecture through production. Most of that work is retrieval, tool-calling agents, and the FastAPI services holding them together.',
+	'Before this I built AutoLead, a RAG assistant on LangChain and LangGraph that books calls, test drives, and service appointments from plain language, running semantic search over pgvector. More recently, a rich-text editor with automated document generation, e-signatures, and audit logging that cut turnaround on a core client workflow by about 60%.',
+	'I write here about the layers most tutorials skip: how TLS actually establishes trust, why a retrieval pipeline returns the wrong chunk, what a system does when it fails. Working out the explanation is usually how I learn it properly.',
 ];
 
 const stack = [
-	'TypeScript',
-	'React',
-	'Node.js',
-	'Go',
+	'Python',
+	'FastAPI',
+	'Django',
+	'LangChain',
+	'LangGraph',
+	'RAG',
 	'PostgreSQL',
+	'pgvector',
 	'Redis',
+	'React',
 	'Docker',
-	'AWS',
-	'Cloudflare',
+	'Linux',
 ];
 ---
 
@@ -28,9 +30,7 @@ const stack = [
 		</div>
 
 		<aside class="reveal">
-			<h3 class="text-muted mb-4 font-mono text-xs tracking-widest uppercase">
-				Working with
-			</h3>
+			<h3 class="text-muted mb-4 font-mono text-xs tracking-widest uppercase">Working with</h3>
 			<ul class="flex flex-wrap gap-x-4 gap-y-2">
 				{stack.map((item) => <li class="text-muted text-sm">{item}</li>)}
 			</ul>

@@ -5,52 +5,54 @@ import NavTabs from './NavTabs.astro';
 import { site, nav } from '../../data/site';
 
 const path = Astro.url.pathname;
-// Mark the section active for its index page and everything nested under it.
 const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 ---
 
-<header
-	class="border-border bg-bg/80 sticky top-0 z-50 border-b backdrop-blur-md"
-	style="view-transition-name: header"
->
-	<Container class="flex h-16 items-center justify-between gap-4">
-		<a href="/" class="hover:text-accent font-display text-lg transition-colors">
-			{site.name}
-		</a>
-
-		<div class="flex items-center gap-1">
-			<nav aria-label="Main" class="hidden sm:block">
-				<NavTabs />
-			</nav>
-
-			<ThemeToggle />
-
-			{/* Native popover — no JavaScript, no focus-trap code to maintain. */}
-			<button
-				type="button"
-				popovertarget="mobile-menu"
-				class="text-muted hover:text-fg grid size-9 place-items-center rounded-full sm:hidden"
-				aria-label="Open menu"
+<header class="sticky top-0 z-50 py-3 print:hidden">
+	<Container class="flex items-center gap-3">
+		{/* Floating pill: logo + nav */}
+		<div class="border-fg bg-bg flex w-full items-center justify-between border px-4 py-2">
+			<a
+				href="/"
+				class="hover:text-accent font-display shrink-0 text-base font-semibold transition-colors"
 			>
-				<svg
-					class="size-5"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="1.75"
-					stroke-linecap="round"
-					aria-hidden="true"
+				{site.name}
+			</a>
+
+			<div class="flex items-center">
+				<nav aria-label="Main" class="hidden sm:mr-3 sm:block">
+					<NavTabs />
+				</nav>
+
+				<ThemeToggle />
+
+				{/* Mobile hamburger — inside the pill, only visible on small screens */}
+				<button
+					type="button"
+					popovertarget="mobile-menu"
+					class="text-muted hover:text-fg grid size-9 place-items-center sm:hidden"
+					aria-label="Open menu"
 				>
-					<path d="M4 7h16M4 12h16M4 17h16"></path>
-				</svg>
-			</button>
+					<svg
+						class="size-5"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.75"
+						stroke-linecap="round"
+						aria-hidden="true"
+					>
+						<path d="M4 7h16M4 12h16M4 17h16"></path>
+					</svg>
+				</button>
+			</div>
 		</div>
 	</Container>
 
 	<div
 		id="mobile-menu"
 		popover
-		class="border-border bg-bg m-0 mt-16 w-full border-b p-6 sm:hidden"
+		class="border-border bg-bg fixed inset-x-0 top-0 m-0 mt-16 w-full border-b p-6 backdrop:bg-black/40 motion-safe:-translate-y-2 motion-safe:opacity-0 motion-safe:transition motion-safe:transition-discrete motion-safe:duration-200 motion-safe:open:translate-y-0 motion-safe:open:opacity-100 sm:hidden motion-safe:open:starting:-translate-y-2 motion-safe:open:starting:opacity-0"
 	>
 		<nav aria-label="Mobile">
 			<ul class="flex flex-col gap-1">
@@ -60,7 +62,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 							<a
 								href={item.href}
 								aria-current={isActive(item.href) ? 'page' : undefined}
-								class="text-muted hover:text-fg aria-[current=page]:text-fg block py-2 text-lg"
+								class="text-muted hover:text-fg aria-[current=page]:text-fg block py-2 font-medium"
 							>
 								{item.label}
 							</a>
@@ -71,40 +73,3 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 		</nav>
 	</div>
 </header>
-
-<style>
-	/* Popovers are top-layer elements, so they need positioning of their own. */
-	#mobile-menu {
-		position: fixed;
-		inset: 0 0 auto 0;
-	}
-
-	#mobile-menu::backdrop {
-		background-color: rgb(0 0 0 / 0.4);
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		#mobile-menu {
-			transition:
-				display 200ms allow-discrete,
-				overlay 200ms allow-discrete,
-				opacity 200ms,
-				translate 200ms;
-			opacity: 0;
-			translate: 0 -0.5rem;
-		}
-
-		#mobile-menu:popover-open {
-			opacity: 1;
-			translate: 0 0;
-		}
-
-		/* Entry animation start point. */
-		@starting-style {
-			#mobile-menu:popover-open {
-				opacity: 0;
-				translate: 0 -0.5rem;
-			}
-		}
-	}
-</style>

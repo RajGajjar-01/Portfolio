@@ -12,7 +12,7 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 				<a
 					href={item.href}
 					aria-current={isActive(item.href) ? 'page' : undefined}
-					class="text-muted hover:text-fg aria-[current=page]:text-fg text-sm transition-colors"
+					class="text-muted hover:text-fg aria-[current=page]:text-fg text-sm font-medium transition-colors"
 				>
 					{item.label}
 				</a>

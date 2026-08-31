@@ -17,10 +17,10 @@ const transitionName = `cover-${tagSlug(project.id)}`;
 ---
 
 <article class="reveal group">
-	<a href={`/projects/${project.id}`} class="block">
+	<a href={`/projects/${project.id}`} class="block" aria-label={`View project: ${title}`}>
 		{
 			cover ? (
-				<div class="border-border bg-surface mb-5 overflow-hidden rounded-xl border">
+				<div class="border-border mb-5 overflow-hidden rounded-none border bg-black transition-[border-radius] duration-300 group-hover:rounded-2xl">
 					<Image
 						src={cover}
 						alt={coverAlt}
@@ -28,7 +28,7 @@ const transitionName = `cover-${tagSlug(project.id)}`;
 						height={500}
 						loading={eager ? 'eager' : 'lazy'}
 						fetchpriority={eager ? 'high' : 'auto'}
-						class="aspect-[8/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+						class="aspect-[8/5] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
 						style={`view-transition-name: ${transitionName}`}
 					/>
 				</div>

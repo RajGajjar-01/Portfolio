@@ -8,11 +8,7 @@ interface Props {
 	class?: string;
 }
 
-const {
-	width = 'default',
-	as: Tag = 'div',
-	class: className = '',
-}: Props = Astro.props;
+const { width = 'default', as: Tag = 'div', class: className = '' }: Props = Astro.props;
 
 const widths: Record<Width, string> = {
 	default: 'max-w-5xl',

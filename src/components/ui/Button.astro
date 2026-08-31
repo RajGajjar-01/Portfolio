@@ -10,22 +10,22 @@ const { href, variant = 'solid', class: className = '' } = Astro.props;
 // Treat anything that isn't a root-relative path or hash as off-site.
 const external = !href.startsWith('/') && !href.startsWith('#');
 
-const variants = {
-	solid: 'bg-accent text-accent-fg hover:opacity-90',
-	outline: 'border-border border hover:border-accent hover:text-accent',
-	ghost: 'text-muted hover:text-fg',
-};
+const base =
+	'inline-flex items-center gap-2 px-5 py-2.5 text-md font-medium transition active:scale-[0.98]';
+
+// Solid/outline reuse the fg/bg pair so "solid" and "outline:hover" land on the same colors.
+const variantClass = {
+	solid: 'bg-fg text-bg hover:bg-accent hover:text-white',
+	outline: 'border-border text-fg border bg-transparent hover:border-fg hover:bg-fg hover:text-bg',
+	ghost: 'text-muted bg-transparent hover:text-fg',
+}[variant];
 ---
 
 <a
 	href={href}
 	target={external ? '_blank' : undefined}
 	rel={external ? 'noopener noreferrer' : undefined}
-	class:list={[
-		'inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition active:scale-[0.97]',
-		variants[variant],
-		className,
-	]}
+	class:list={[base, variantClass, className]}
 >
 	<slot />
 	{

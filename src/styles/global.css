@@ -8,21 +8,21 @@
 	--fg: oklch(21% 0.012 265);
 	--muted: oklch(52% 0.014 265);
 	--border: oklch(90% 0.005 265);
-	--accent: oklch(55% 0.19 258);
-	--accent-fg: oklch(99% 0.002 265);
+	--accent: #ff7557;
+	--accent-fg: oklch(21% 0.012 265);
 
 	color-scheme: light;
 }
 
 /* Explicit user choice wins. */
 :root[data-theme='dark'] {
-	--bg: oklch(17% 0.011 265);
+	--bg: #141414;
 	--surface: oklch(21% 0.013 265);
 	--fg: oklch(95% 0.004 265);
 	--muted: oklch(68% 0.015 265);
 	--border: oklch(29% 0.014 265);
-	--accent: oklch(72% 0.15 258);
-	--accent-fg: oklch(17% 0.011 265);
+	--accent: #ff7557;
+	--accent-fg: #141414;
 
 	color-scheme: dark;
 }
@@ -30,13 +30,13 @@
 /* System preference, only when the user has not chosen explicitly. */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme='light']) {
-		--bg: oklch(17% 0.011 265);
+		--bg: #141414;
 		--surface: oklch(21% 0.013 265);
 		--fg: oklch(95% 0.004 265);
 		--muted: oklch(68% 0.015 265);
 		--border: oklch(29% 0.014 265);
-		--accent: oklch(72% 0.15 258);
-		--accent-fg: oklch(17% 0.011 265);
+		--accent: #ff7557;
+		--accent-fg: #141414;
 
 		color-scheme: dark;
 	}
@@ -52,8 +52,8 @@
 	--color-accent: var(--accent);
 	--color-accent-fg: var(--accent-fg);
 
-	--font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-	--font-display: var(--font-serif-display), ui-serif, Georgia, serif;
+	--font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+	--font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
 	/* Reading measure for prose. */
 	--container-prose: 68ch;
@@ -98,7 +98,7 @@
 	h3,
 	h4 {
 		font-family: var(--font-display);
-		font-weight: 400;
+		font-weight: 700;
 		letter-spacing: -0.02em;
 		text-wrap: balance;
 	}
