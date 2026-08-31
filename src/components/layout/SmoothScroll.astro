@@ -47,4 +47,11 @@
 	window.addEventListener('scroll', updateProgress, { passive: true });
 	window.addEventListener('resize', updateProgress, { passive: true });
 	updateProgress();
+
+	// This module is not re-executed on soft navigation, so Lenis keeps the
+	// outgoing page's scroll offset unless it is told to snap back.
+	document.addEventListener('astro:after-swap', () => {
+		lenis?.scrollTo(0, { immediate: true });
+		updateProgress();
+	});
 </script>

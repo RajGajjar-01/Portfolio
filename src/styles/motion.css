@@ -1,9 +1,6 @@
-/* Animation layer using scroll-driven timelines and native View Transitions. */
-
-/* Native cross-document transitions. No client router, no JS. */
-@view-transition {
-	navigation: auto;
-}
+/* Animation layer using scroll-driven timelines and View Transitions.
+   Transitions are driven by <ClientRouter /> in Base.astro, which swaps the
+   document in place, so no @view-transition rule belongs here. */
 
 /* Reading progress bar driven by --scroll-progress from SmoothScroll. */
 .scroll-progress {

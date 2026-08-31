@@ -5,9 +5,20 @@ import { site } from '../../data/site';
 const letters = [...site.name];
 ---
 
-{/* Runs before the panel paints, so there is no flash of the page underneath. */}
+{/* Runs before the panel paints, so there is no flash of the page underneath.
+    The window flag outlives router swaps but not a real load, so the intro is
+    tied to actually opening the site rather than to reaching this route. */}
 <script is:inline>
-	document.documentElement.dataset.intro = '';
+	if (!window.__introPlayed) {
+		window.__introPlayed = true;
+		document.documentElement.dataset.intro = '';
+
+		// Cleared at the next navigation, well after every animation here has
+		// finished, so nothing recomputes its delay mid-flight.
+		document.addEventListener('astro:after-swap', () => {
+			delete document.documentElement.dataset.intro;
+		});
+	}
 </script>
 
 <div class="intro" aria-hidden="true">

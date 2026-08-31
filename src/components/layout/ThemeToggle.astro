@@ -1,5 +1,5 @@
 ---
-// The only JavaScript on the site: ~15 lines, inlined so it costs no request.
+// Inlined so it costs no request; delegated so it survives router swaps.
 ---
 
 <button
@@ -63,15 +63,22 @@
 </style>
 
 <script is:inline>
-	document.getElementById('theme-toggle').addEventListener('click', () => {
-		const root = document.documentElement;
-		// With no explicit choice yet, the effective theme is the system one.
-		const current =
-			root.dataset.theme ||
-			(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-		const next = current === 'dark' ? 'light' : 'dark';
+	// Delegated from the document, which the router never swaps, so one listener
+	// covers every button this page and all soft-navigated pages render.
+	if (!window.__themeToggleBound) {
+		window.__themeToggleBound = true;
+		document.addEventListener('click', (event) => {
+			if (!event.target.closest('#theme-toggle')) return;
 
-		root.dataset.theme = next;
-		localStorage.setItem('theme', next);
-	});
+			const root = document.documentElement;
+			// With no explicit choice yet, the effective theme is the system one.
+			const current =
+				root.dataset.theme ||
+				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+			const next = current === 'dark' ? 'light' : 'dark';
+
+			root.dataset.theme = next;
+			localStorage.setItem('theme', next);
+		});
+	}
 </script>

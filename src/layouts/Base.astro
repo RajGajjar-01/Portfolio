@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import { site } from '../data/site';
 import type { SeoProps } from '../lib/seo';
 import JsonLd from '../components/seo/JsonLd.astro';
@@ -88,6 +89,10 @@ const ogImage = new URL(image, Astro.site);
 
 		{/* Self-hosted and preloaded, so text paints in the right font immediately. */}
 		<Font cssVariable="--font-jakarta" preload />
+
+		{/* Swaps the document instead of reloading it; pairs with the hover
+		    prefetch configured in astro.config.mjs. */}
+		<ClientRouter />
 
 		{/* Runs before first paint to avoid a theme flash. */}
 		<script is:inline>
