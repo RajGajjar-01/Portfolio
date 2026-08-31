@@ -2,28 +2,20 @@
 import Page from '../layouts/Page.astro';
 import Section from '../components/ui/Section.astro';
 import Hero from '../components/home/Hero.astro';
+import Intro from '../components/home/Intro.astro';
 import About from '../components/home/About.astro';
 import Contact from '../components/home/Contact.astro';
 import ProjectCard from '../components/ui/ProjectCard.astro';
 import PostCard from '../components/ui/PostCard.astro';
 import { getFeaturedProjects, getPosts } from '../lib/content';
-import { site, socials } from '../data/site';
 
 const projects = await getFeaturedProjects(3);
 const posts = (await getPosts()).slice(0, 3);
-
-const personSchema = {
-	'@context': 'https://schema.org',
-	'@type': 'Person',
-	name: site.name,
-	jobTitle: site.role,
-	url: site.url,
-	sameAs: socials.filter((s) => s.href.startsWith('http')).map((s) => s.href),
-};
 ---
 
+<!-- Person and WebSite JSON-LD are emitted sitewide from Base.astro. -->
 <Page>
-	<script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+	<Intro />
 	<Hero />
 
 	{

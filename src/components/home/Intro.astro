@@ -1,0 +1,108 @@
+---
+// First-load intro: the name comes in letter by letter, then leaves the same way.
+import { site } from '../../data/site';
+
+const letters = [...site.name];
+---
+
+{/* Runs before the panel paints, so there is no flash of the page underneath. */}
+<script is:inline>
+	document.documentElement.dataset.intro = '';
+</script>
+
+<div class="intro" aria-hidden="true">
+	<span class="intro-name">
+		{letters.map((char, i) => <span style={`--i:${i}`}>{char === ' ' ? ' ' : char}</span>)}
+	</span>
+</div>
+
+<style is:global>
+	:root {
+		--intro-step: 45ms;
+		/* Letters finish arriving, hold, then leave in the same order. */
+		--intro-out-at: 900ms;
+		--intro-wipe-at: 1650ms;
+	}
+
+	/* Off unless the inline script opts this load in. */
+	.intro {
+		display: none;
+	}
+
+	:root[data-intro] .intro {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		display: grid;
+		place-items: center;
+		background-color: #202020;
+		animation: intro-wipe 640ms cubic-bezier(0.76, 0, 0.24, 1) var(--intro-wipe-at) both;
+	}
+
+	.intro-name {
+		display: flex;
+		font-size: clamp(1rem, 1.6vw, 1.25rem);
+		font-weight: 500;
+		letter-spacing: 0.15em;
+		white-space: pre;
+		color: #939393;
+	}
+
+	.intro-name > span {
+		display: inline-block;
+		opacity: 0;
+		animation:
+			intro-in 480ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i) * var(--intro-step)) both,
+			intro-out 380ms cubic-bezier(0.65, 0, 0.35, 1)
+				calc(var(--intro-out-at) + var(--i) * var(--intro-step)) forwards;
+	}
+
+	/* Page content waits for the panel to clear. */
+	:root[data-intro] {
+		--reveal-offset: calc(var(--intro-wipe-at) + 260ms);
+	}
+
+	@keyframes intro-in {
+		from {
+			opacity: 0;
+			translate: 0 0.6em;
+		}
+		to {
+			opacity: 1;
+			translate: 0 0;
+		}
+	}
+
+	@keyframes intro-out {
+		from {
+			opacity: 1;
+			translate: 0 0;
+		}
+		to {
+			opacity: 0;
+			translate: 0 0.6em;
+		}
+	}
+
+	@keyframes intro-wipe {
+		to {
+			translate: 0 -100%;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:root[data-intro] .intro {
+			display: none;
+		}
+		:root {
+			--reveal-offset: 0ms;
+		}
+	}
+</style>
+
+{/* Drop the panel once it has wiped away, so it never sits over the page. */}
+<script is:inline>
+	document
+		.querySelector('.intro')
+		?.addEventListener('animationend', (e) => e.animationName === 'intro-wipe' && e.target.remove());
+</script>
