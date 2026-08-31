@@ -17,9 +17,7 @@ export async function getPosts(): Promise<Post[]> {
 /** Explicit `order` first, then most recent year. */
 export async function getProjects(): Promise<Project[]> {
 	const projects = await getCollection('projects', published);
-	return projects.sort(
-		(a, b) => a.data.order - b.data.order || b.data.year - a.data.year,
-	);
+	return projects.sort((a, b) => a.data.order - b.data.order || b.data.year - a.data.year);
 }
 
 export async function getFeaturedProjects(limit = 3): Promise<Project[]> {

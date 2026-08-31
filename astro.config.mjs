@@ -4,13 +4,13 @@ import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
-
-// TODO: replace with your real domain before deploying (needed for sitemap/RSS).
-const SITE = 'https://example.com';
+import { site } from './src/data/site';
 
 // https://astro.build/config
 export default defineConfig({
-	site: SITE,
+	// One origin, defined in src/data/site.ts, so canonicals, OG urls, the
+	// sitemap and RSS can never drift apart.
+	site: site.url,
 
 	// Head start on soft navigation: hover/focus fires the fetch before the
 	// click lands, so ClientRouter swaps land near-instantly. Nav is a small,
@@ -25,25 +25,20 @@ export default defineConfig({
 	// Build-time optimized images; skip provisioning Cloudflare Images binding.
 	adapter: cloudflare({ imageService: 'compile' }),
 
-	integrations: [mdx(), sitemap()],
+	// `lastmod` gives crawlers a recrawl signal; changefreq/priority are ignored
+	// by Google, so they are left off. The 404 is noindex and does not belong.
+	integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/404'), lastmod: new Date() })],
 
 	// Self-hosted, subset and preloaded fonts to prevent FOUT and third-party requests.
+	// One geometric rounded sans for everything: nav/body at 400-600, headings at 700-800.
 	fonts: [
 		{
 			provider: fontProviders.fontsource(),
-			name: 'Inter',
-			cssVariable: '--font-inter',
-			weights: [400, 500, 600],
+			name: 'Plus Jakarta Sans',
+			cssVariable: '--font-jakarta',
+			weights: [400, 500, 600, 700, 800],
 			subsets: ['latin'],
 			styles: ['normal'],
-		},
-		{
-			provider: fontProviders.fontsource(),
-			name: 'Playfair Display',
-			cssVariable: '--font-serif-display',
-			weights: [400],
-			subsets: ['latin'],
-			styles: ['normal', 'italic'],
 		},
 	],
 

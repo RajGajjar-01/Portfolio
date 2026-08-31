@@ -1,17 +1,28 @@
 ---
 import { Font } from 'astro:assets';
-import { ClientRouter } from 'astro:transitions';
 import { site } from '../data/site';
 import type { SeoProps } from '../lib/seo';
+import JsonLd from '../components/seo/JsonLd.astro';
+import { personSchema, websiteSchema } from '../lib/schema';
 import '../styles/global.css';
 
 type Props = SeoProps;
 
-const { title, description = site.description, image, article, noindex } = Astro.props;
+const {
+	title,
+	description = site.description,
+	image = '/og-default.png',
+	imageAlt = `${site.name}, ${site.role}`,
+	article,
+	noindex,
+	schema = [],
+} = Astro.props;
 
 const pageTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.role}`;
+// Trailing slash kept: @astrojs/sitemap and @astrojs/rss both emit one, so
+// canonical, og:url, the sitemap and the feed all name the identical URL.
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = image ? new URL(image, Astro.site) : undefined;
+const ogImage = new URL(image, Astro.site);
 ---
 
 <!doctype html>
@@ -36,37 +47,47 @@ const ogImage = image ? new URL(image, Astro.site) : undefined;
 			href={new URL('rss.xml', Astro.site)}
 		/>
 
+		{/* og:site_name already carries the attribution, so the card title stays bare. */}
 		<meta property="og:type" content={article ? 'article' : 'website'} />
-		<meta property="og:title" content={pageTitle} />
+		<meta property="og:title" content={title ?? `${site.name} | ${site.role}`} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />
 		<meta property="og:site_name" content={site.name} />
-		{ogImage && <meta property="og:image" content={ogImage} />}
-		<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+		<meta property="og:locale" content={site.locale} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={imageAlt} />
+
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title ?? `${site.name} | ${site.role}`} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
+		<meta name="twitter:image:alt" content={imageAlt} />
+		<meta name="twitter:creator" content={`@${site.twitter}`} />
+		<meta name="author" content={site.name} />
 
 		{
 			article && (
 				<>
-					<meta
-						property="article:published_time"
-						content={article.publishedTime.toISOString()}
-					/>
+					<meta property="article:published_time" content={article.publishedTime.toISOString()} />
 					{article.modifiedTime && (
-						<meta
-							property="article:modified_time"
-							content={article.modifiedTime.toISOString()}
-						/>
+						<meta property="article:modified_time" content={article.modifiedTime.toISOString()} />
 					)}
-					{article.tags?.map((tag) => <meta property="article:tag" content={tag} />)}
+					{article.tags?.map((tag) => (
+						<meta property="article:tag" content={tag} />
+					))}
 				</>
 			)
 		}
 
-		{/* Self-hosted and preloaded, so text paints in the right font immediately. */}
-		<Font cssVariable="--font-inter" preload />
-		<Font cssVariable="--font-serif-display" preload />
+		{/* Entity anchor: every author/publisher slot on the site points back here. */}
+		<JsonLd schema={personSchema()} />
+		<JsonLd schema={websiteSchema()} />
+		{schema.map((node) => <JsonLd schema={node} />)}
 
-		<ClientRouter />
+		{/* Self-hosted and preloaded, so text paints in the right font immediately. */}
+		<Font cssVariable="--font-jakarta" preload />
 
 		{/* Runs before first paint to avoid a theme flash. */}
 		<script is:inline>
@@ -74,14 +95,6 @@ const ogImage = image ? new URL(image, Astro.site) : undefined;
 			if (theme === 'light' || theme === 'dark') {
 				document.documentElement.dataset.theme = theme;
 			}
-
-			// Astro soft navigation swaps <html> to match the incoming document,
-			// which has no data-theme (it's only ever set by this script). Carry
-			// the current theme forward so it survives the swap.
-			document.addEventListener('astro:before-swap', (event) => {
-				const current = document.documentElement.dataset.theme;
-				if (current) event.newDocument.documentElement.dataset.theme = current;
-			});
 		</script>
 	</head>
 

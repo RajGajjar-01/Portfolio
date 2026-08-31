@@ -6,6 +6,7 @@ import Entry from '../../layouts/Entry.astro';
 import Button from '../../components/ui/Button.astro';
 import Container from '../../components/ui/Container.astro';
 import { getProjects, tagSlug } from '../../lib/content';
+import { breadcrumbSchema, projectSchema } from '../../lib/schema';
 
 export const getStaticPaths = (async () => {
 	const projects = await getProjects();
@@ -21,6 +22,8 @@ const { Content } = await render(project);
 
 // Matches the card on the listing page, so the cover morphs between them.
 const transitionName = `cover-${tagSlug(project.id)}`;
+
+const canonical = new URL(`/projects/${project.id}/`, Astro.site);
 ---
 
 <Entry
@@ -30,6 +33,16 @@ const transitionName = `cover-${tagSlug(project.id)}`;
 	lede={summary}
 	tags={tags}
 	back={{ label: 'All work', href: '/projects' }}
+	image={cover?.src}
+	imageAlt={cover ? coverAlt : undefined}
+	schema={[
+		projectSchema(project, canonical, cover?.src),
+		breadcrumbSchema([
+			{ name: 'Home', path: '/' },
+			{ name: 'Work', path: '/projects/' },
+			{ name: title },
+		]),
+	]}
 >
 	<Fragment slot="meta">
 		<span>{year}</span>

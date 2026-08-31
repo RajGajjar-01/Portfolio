@@ -6,7 +6,9 @@ import Tag from '../components/ui/Tag.astro';
 import { site, socials } from '../data/site';
 import { experience, skills, resumePdf, type ResumeItem } from '../data/resume';
 
-const sections: { heading: string; items: ResumeItem[] }[] = [{ heading: 'Experience', items: experience }];
+const sections: { heading: string; items: ResumeItem[] }[] = [
+	{ heading: 'Experience', items: experience },
+];
 ---
 
 <Page title="Resume" description={`Resume and background for ${site.name}.`}>
@@ -49,15 +51,17 @@ const sections: { heading: string; items: ResumeItem[] }[] = [{ heading: 'Experi
 		{
 			sections.map(({ heading, items }) => (
 				<section class="mb-14">
-					<h2 class="text-muted mb-8 font-mono text-xs tracking-widest uppercase">
-						{heading}
-					</h2>
+					<h2 class="text-muted mb-8 font-mono text-xs tracking-widest uppercase">{heading}</h2>
 
 					<div class="space-y-10">
 						{items.map((item) => (
 							<div class="reveal grid gap-2 sm:grid-cols-[8rem_1fr] sm:gap-8">
 								<p class="text-muted pt-1 font-mono text-xs">
-									{item.end && item.end !== item.start ? `${item.start} - ${item.end}` : item.end ? item.start : `${item.start} - Present`}
+									{item.end && item.end !== item.start
+										? `${item.start} - ${item.end}`
+										: item.end
+											? item.start
+											: `${item.start} - Present`}
 								</p>
 
 								<div>
@@ -111,13 +115,3 @@ const sections: { heading: string; items: ResumeItem[] }[] = [{ heading: 'Experi
 		</section>
 	</Container>
 </Page>
-
-<style>
-	/* Printing the page should produce a usable resume. */
-	@media print {
-		:global(header[class*='sticky']),
-		:global(footer) {
-			display: none;
-		}
-	}
-</style>

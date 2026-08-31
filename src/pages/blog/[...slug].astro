@@ -6,6 +6,7 @@ import Entry from '../../layouts/Entry.astro';
 import Container from '../../components/ui/Container.astro';
 import PostCard from '../../components/ui/PostCard.astro';
 import { getPosts, tagSlug } from '../../lib/content';
+import { blogPostingSchema, breadcrumbSchema } from '../../lib/schema';
 
 export const getStaticPaths = (async () => {
 	const posts = await getPosts();
@@ -15,7 +16,9 @@ export const getStaticPaths = (async () => {
 		props: {
 			post,
 			// Precomputed here so the page itself does no querying.
-			related: posts.filter((p, j) => j !== i && p.data.tags.some((t) => post.data.tags.includes(t))).slice(0, 2),
+			related: posts
+				.filter((p, j) => j !== i && p.data.tags.some((t) => post.data.tags.includes(t)))
+				.slice(0, 2),
 		},
 	}));
 }) satisfies GetStaticPaths;
@@ -23,6 +26,12 @@ export const getStaticPaths = (async () => {
 const { post, related } = Astro.props;
 const { title, description, pubDate, updatedDate, cover, coverAlt, tags } = post.data;
 const { Content } = await render(post);
+// SVG covers are vector, so skip the raster resize pipeline (fit=cover 400s on svg).
+const isSvgCover = cover?.format === 'svg';
+
+// Crawlers reject SVG social images, so a vector cover falls back to the default card.
+const shareImage = cover && !isSvgCover ? cover.src : undefined;
+const canonical = new URL(`/blog/${post.id}/`, Astro.site);
 ---
 
 <Entry
@@ -36,20 +45,40 @@ const { Content } = await render(post);
 	tagHref={(tag) => `/blog/tag/${tagSlug(tag)}`}
 	back={{ label: 'All posts', href: '/blog' }}
 	article={{ publishedTime: pubDate, modifiedTime: updatedDate, tags: [...tags] }}
+	image={shareImage}
+	imageAlt={shareImage ? coverAlt : undefined}
+	schema={[
+		blogPostingSchema(post, canonical, shareImage),
+		breadcrumbSchema([
+			{ name: 'Home', path: '/' },
+			{ name: 'Writing', path: '/blog/' },
+			{ name: title },
+		]),
+	]}
 >
 	<Fragment slot="hero">
 		{
 			cover && (
 				<div class="border-border bg-surface mb-14 overflow-hidden rounded-xl border">
-					<Image
-						src={cover}
-						alt={coverAlt}
-						width={1600}
-						height={900}
-						loading="eager"
-						fetchpriority="high"
-						class="aspect-video w-full object-cover"
-					/>
+					{isSvgCover ? (
+						<img
+							src={cover.src}
+							alt={coverAlt}
+							loading="eager"
+							fetchpriority="high"
+							class="aspect-video w-full object-cover"
+						/>
+					) : (
+						<Image
+							src={cover}
+							alt={coverAlt}
+							width={1600}
+							height={900}
+							loading="eager"
+							fetchpriority="high"
+							class="aspect-video w-full object-cover"
+						/>
+					)}
 				</div>
 			)
 		}
@@ -61,9 +90,11 @@ const { Content } = await render(post);
 		related.length > 0 && (
 			<Container slot="after" class="border-border mt-16 border-t py-12">
 				<h2 class="mb-8 text-2xl">Related</h2>
-				{related.map((p) => (
-					<PostCard post={p} />
-				))}
+				<div class="grid gap-x-8 gap-y-16 sm:grid-cols-2">
+					{related.map((p) => (
+						<PostCard post={p} />
+					))}
+				</div>
 			</Container>
 		)
 	}
