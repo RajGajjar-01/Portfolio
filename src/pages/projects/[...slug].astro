@@ -5,7 +5,7 @@ import type { GetStaticPaths } from 'astro';
 import Entry from '../../layouts/Entry.astro';
 import Button from '../../components/ui/Button.astro';
 import Container from '../../components/ui/Container.astro';
-import { getProjects, tagSlug } from '../../lib/content';
+import { getProjects } from '../../lib/content';
 import { breadcrumbSchema, projectSchema } from '../../lib/schema';
 
 export const getStaticPaths = (async () => {
@@ -19,9 +19,6 @@ export const getStaticPaths = (async () => {
 const { project } = Astro.props;
 const { title, summary, cover, coverAlt, tags, year, role, link, repo } = project.data;
 const { Content } = await render(project);
-
-// Matches the card on the listing page, so the cover morphs between them.
-const transitionName = `cover-${tagSlug(project.id)}`;
 
 const canonical = new URL(`/projects/${project.id}/`, Astro.site);
 ---
@@ -61,7 +58,6 @@ const canonical = new URL(`/projects/${project.id}/`, Astro.site);
 						loading="eager"
 						fetchpriority="high"
 						class="aspect-[8/5] w-full object-cover"
-						style={`view-transition-name: ${transitionName}`}
 					/>
 				</div>
 			)

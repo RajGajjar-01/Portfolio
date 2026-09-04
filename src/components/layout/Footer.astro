@@ -1,37 +1,109 @@
 ---
 import Container from '../ui/Container.astro';
-import SocialIcon from '../ui/SocialIcon.astro';
 import { site, socials } from '../../data/site';
 
 const year = new Date().getFullYear();
+
+// Scale the wordmark off the name's length so it fills the width and bleeds
+// past both edges whatever the name is, rather than a fixed size that only
+// happens to fit this one. Capped so it stays sane on very wide screens.
+const wordmarkSize = `min(calc(190vw / ${site.name.length}), 15rem)`;
+
+// Split so each letter can rise on its own offset.
+const letters = [...site.name];
+
+// Show email + LinkedIn + GitHub + X in the footer links row
+const footerLinks = socials.filter((s) => ['LinkedIn', 'GitHub', 'X'].includes(s.label));
 ---
 
-<footer class="border-border mt-auto border-t py-12 print:hidden">
-	<Container class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-		<p class="text-muted text-sm">
-			&copy; {year}
-			{site.name}
-		</p>
+<footer class="mt-auto pt-20 print:hidden">
+	{/* Mask the letters rise out of. clip-path rather than overflow-hidden:
+	    overflow-hidden makes this a scroll container, and the view() timeline
+	    inside would resolve against this box and never activate. It also clips
+	    the horizontal bleed, so the footer itself needs no overflow.
+	    The font-size lives here so the padding below can be em-based: the clip
+	    edge has to sit under the descenders or the j tails get sliced off. */}
+	<div
+		aria-hidden="true"
+		class="w-full pb-[0.2em] [clip-path:inset(0)]"
+		style={`font-size: ${wordmarkSize}`}
+	>
+		{/* Oversized wordmark, sized in vw so it always bleeds past both edges.
+		    Sits just above the page background rather than reading as text. */}
+		<div
+			class="font-display wordmark-rise pointer-events-none w-full text-center leading-[1] font-bold whitespace-pre select-none"
+			style="color: var(--wordmark)"
+		>
+			{letters.map((char, i) => <span style={`--i:${i}`}>{char}</span>)}
+		</div>
+	</div>
 
-		<ul class="flex flex-wrap items-center gap-x-5 gap-y-2">
+	<Container class="pt-4 pb-12">
+		<p class="text-muted max-w-prose text-lg">{site.description}</p>
+
+		{/* Contact / social links — rendered as pills, matching the reference */}
+		<div class="mt-6 flex flex-wrap items-center gap-3">
+			{/* Email pill */}
+			<a
+				href={`mailto:${site.email}`}
+				class="border-border text-muted hover:text-fg inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm transition-colors"
+			>
+				{site.email}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="12"
+					height="12"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+				</svg>
+			</a>
+
+			{/* Social pills */}
 			{
-				socials.map((social) => (
-					<li>
-						<a
-							href={social.href}
-							target={social.href.startsWith('http') ? '_blank' : undefined}
-							rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-							aria-label={social.icon ? social.label : undefined}
-							class="text-muted hover:text-fg text-sm transition-colors"
+				footerLinks.map((s) => (
+					<a
+						href={s.href}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="border-border text-muted hover:text-fg inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm transition-colors"
+					>
+						{s.label}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="12"
+							height="12"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
 						>
-							{social.icon ? <SocialIcon name={social.icon} class="size-[1.1em]" /> : social.label}
-						</a>
-					</li>
+							<path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+						</svg>
+					</a>
 				))
 			}
-			<li>
-				<a href="/rss.xml" class="text-muted hover:text-fg text-sm transition-colors">RSS</a>
-			</li>
-		</ul>
+		</div>
+
+		{/* Divider + bottom bar */}
+		<div class="border-border mt-12 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
+			<p class="text-muted text-sm">&copy; {year} {site.name}. All rights reserved.</p>
+
+			<ul class="text-muted flex items-center gap-5 text-sm">
+				<li><a href="/rss.xml" class="hover:text-fg transition-colors">RSS</a></li>
+				<li>
+					<a href="/sitemap-index.xml" class="hover:text-fg transition-colors">Sitemap</a>
+				</li>
+			</ul>
+		</div>
 	</Container>
 </footer>

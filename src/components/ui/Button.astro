@@ -11,12 +11,13 @@ const { href, variant = 'solid', class: className = '' } = Astro.props;
 const external = !href.startsWith('/') && !href.startsWith('#');
 
 const base =
-	'inline-flex items-center gap-2 px-5 py-2.5 text-md font-medium transition active:scale-[0.98]';
+	'inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-md font-medium transition active:scale-[0.98]';
 
-// Solid/outline reuse the fg/bg pair so "solid" and "outline:hover" land on the same colors.
+// Solid and outline take the pointer-origin accent sweep (.btn-fill supplies the
+// hover colour); ghost is a bare text link with no box to fill.
 const variantClass = {
-	solid: 'bg-fg text-bg hover:bg-accent hover:text-white',
-	outline: 'border-border text-fg border bg-transparent hover:border-fg hover:bg-fg hover:text-bg',
+	solid: 'btn-fill bg-fg text-bg',
+	outline: 'btn-fill border-border text-fg border bg-transparent hover:border-accent',
 	ghost: 'text-muted bg-transparent hover:text-fg',
 }[variant];
 ---
@@ -27,7 +28,8 @@ const variantClass = {
 	rel={external ? 'noopener noreferrer' : undefined}
 	class:list={[base, variantClass, className]}
 >
-	<slot />
+	{/* Wrapped so it is an element child, which .btn-fill lifts above the sweep. */}
+	<span><slot /></span>
 	{
 		external && (
 			<svg

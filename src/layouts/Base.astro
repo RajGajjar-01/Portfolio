@@ -93,17 +93,28 @@ const ogImage = new URL(image, Astro.site);
 		{/* Swaps the document instead of reloading it; pairs with the hover
 		    prefetch configured in astro.config.mjs. */}
 		<ClientRouter />
-
-		{/* Runs before first paint to avoid a theme flash. */}
-		<script is:inline>
-			const theme = localStorage.getItem('theme');
-			if (theme === 'light' || theme === 'dark') {
-				document.documentElement.dataset.theme = theme;
-			}
-		</script>
 	</head>
 
 	<body>
 		<slot />
+
+		{/* CSS cannot know where the pointer is, so this sets the origin of the
+		    .btn-fill sweep. Delegated from the document so it survives router
+		    swaps, and inline so it stays out of the bundle. */}
+		<script is:inline>
+			if (!window.__btnFillBound) {
+				window.__btnFillBound = true;
+
+				document.addEventListener('pointerover', (event) => {
+					const btn = event.target.closest?.('.btn-fill');
+					// Ignore moves between the label and the icon inside one button.
+					if (!btn || btn.contains(event.relatedTarget)) return;
+
+					const rect = btn.getBoundingClientRect();
+					btn.style.setProperty('--x', `${((event.clientX - rect.left) / rect.width) * 100}%`);
+					btn.style.setProperty('--y', `${((event.clientY - rect.top) / rect.height) * 100}%`);
+				});
+			}
+		</script>
 	</body>
 </html>

@@ -6,7 +6,7 @@ export const site = {
 	role: 'AI Engineer',
 	// One line, kept under 160 chars so search results show it whole.
 	description:
-		'AI engineer in Ahmedabad building LLM-backed systems with Python, FastAPI, and LangGraph. I write about security, networking, and how things actually work.',
+		'AI engineer in Ahmedabad building LLM-backed systems with Python, FastAPI, and LangGraph.',
 	// Imported by astro.config.mjs, so this is the only place the origin is written.
 	url: 'https://portfolio.irajgajjar-2004.workers.dev',
 	locale: 'en',

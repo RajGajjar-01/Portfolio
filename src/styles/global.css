@@ -1,21 +1,8 @@
 @import 'tailwindcss';
 @import './motion.css';
 
-/* Runtime theme variables swapped by theme toggle; read via @theme inline. */
+/* The site is dark-only — there is no theme switching. */
 :root {
-	--bg: oklch(99% 0.002 265);
-	--surface: oklch(97% 0.003 265);
-	--fg: oklch(21% 0.012 265);
-	--muted: oklch(52% 0.014 265);
-	--border: oklch(90% 0.005 265);
-	--accent: #ff7557;
-	--accent-fg: oklch(21% 0.012 265);
-
-	color-scheme: light;
-}
-
-/* Explicit user choice wins. */
-:root[data-theme='dark'] {
 	--bg: #141414;
 	--surface: oklch(21% 0.013 265);
 	--fg: oklch(95% 0.004 265);
@@ -23,26 +10,14 @@
 	--border: oklch(29% 0.014 265);
 	--accent: #ff7557;
 	--accent-fg: #141414;
+	/* Footer wordmark: sits just above the page background so the name reads as
+	   a watermark rather than as content. */
+	--wordmark: #242424;
 
 	color-scheme: dark;
 }
 
-/* System preference, only when the user has not chosen explicitly. */
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme='light']) {
-		--bg: #141414;
-		--surface: oklch(21% 0.013 265);
-		--fg: oklch(95% 0.004 265);
-		--muted: oklch(68% 0.015 265);
-		--border: oklch(29% 0.014 265);
-		--accent: #ff7557;
-		--accent-fg: #141414;
-
-		color-scheme: dark;
-	}
-}
-
-/* `inline` emits CSS variables directly in utilities for runtime theme switching. */
+/* `inline` emits the CSS variables directly into the generated utilities. */
 @theme inline {
 	--color-bg: var(--bg);
 	--color-surface: var(--surface);
@@ -122,6 +97,51 @@
 }
 
 @layer components {
+	/* Accent fill that grows from wherever the pointer entered. The origin is
+	   set as --x/--y by the delegated handler in Base.astro, since CSS has no
+	   way to know where the pointer is. */
+	.btn-fill {
+		position: relative;
+		overflow: hidden;
+		/* Own stacking context, so the layers below sort against each other
+		   and not against the surrounding page. */
+		isolation: isolate;
+		transition: color 0.35s ease;
+	}
+
+	.btn-fill::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		/* Both this and the label are positioned, so without explicit layers a
+		   pseudo-element paints last and covers the text. */
+		z-index: 0;
+		background: var(--accent);
+		clip-path: circle(0% at var(--x, 50%) var(--y, 50%));
+		transition: clip-path 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.btn-fill:hover::after {
+		/* Past 100% so the circle still covers the far corners from any origin. */
+		clip-path: circle(150% at var(--x, 50%) var(--y, 50%));
+	}
+
+	.btn-fill > * {
+		position: relative;
+		z-index: 1;
+	}
+
+	.btn-fill:hover {
+		color: var(--accent-fg);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.btn-fill,
+		.btn-fill::after {
+			transition: none;
+		}
+	}
+
 	/* Skip link — visible only once focused. */
 	.skip-link {
 		position: fixed;

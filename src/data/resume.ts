@@ -1,18 +1,15 @@
-// Plain data; it renders on one page and feeds Person.knowsAbout / worksFor in schema.ts.
 
 export interface ResumeItem {
 	title: string;
 	org: string;
 	location?: string;
 	start: string;
-	/** Omit for current roles (renders as "Present"). Set equal to `start` for a single-month role. */
 	end?: string;
 	summary?: string;
 	points?: string[];
 }
 
-/** Optional link to a downloadable PDF placed in `public/`. */
-export const resumePdf: string | null = null;
+export const resumePdf: string | null = "/resume/RajGajjar.pdf";
 
 export const experience: ResumeItem[] = [
 	{

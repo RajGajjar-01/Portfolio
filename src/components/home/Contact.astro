@@ -1,8 +1,7 @@
 ---
 import Section from '../ui/Section.astro';
 import Button from '../ui/Button.astro';
-import SocialIcon from '../ui/SocialIcon.astro';
-import { site, socials } from '../../data/site';
+import { site } from '../../data/site';
 ---
 
 <Section class="border-border border-t">
@@ -16,16 +15,6 @@ import { site, socials } from '../../data/site';
 
 		<div class="mt-10 flex flex-wrap items-center gap-3">
 			<Button href={`mailto:${site.email}`}>{site.email}</Button>
-			{
-				socials
-					.filter((s) => s.label !== 'Email')
-					.map((s) => (
-						<Button href={s.href} variant="ghost">
-							{s.icon && <SocialIcon name={s.icon} class="size-4" />}
-							{s.label}
-						</Button>
-					))
-			}
 		</div>
 	</div>
 </Section>

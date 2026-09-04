@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Tag from './Tag.astro';
-import { tagSlug, type Project } from '../../lib/content';
+import type { Project } from '../../lib/content';
 
 interface Props {
 	project: Project;
@@ -11,9 +11,6 @@ interface Props {
 
 const { project, eager = false } = Astro.props;
 const { title, summary, cover, coverAlt, tags, year, role } = project.data;
-
-// Shared with the case-study hero so the cover morphs across the navigation.
-const transitionName = `cover-${tagSlug(project.id)}`;
 ---
 
 <article class="reveal group">
@@ -29,14 +26,10 @@ const transitionName = `cover-${tagSlug(project.id)}`;
 						loading={eager ? 'eager' : 'lazy'}
 						fetchpriority={eager ? 'high' : 'auto'}
 						class="aspect-[8/5] w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-						style={`view-transition-name: ${transitionName}`}
 					/>
 				</div>
 			) : (
-				<div
-					class="border-border bg-surface mb-5 aspect-[8/5] rounded-xl border"
-					style={`view-transition-name: ${transitionName}`}
-				/>
+				<div class="border-border bg-surface mb-5 aspect-[8/5] rounded-xl border" />
 			)
 		}
 

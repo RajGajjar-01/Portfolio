@@ -1,30 +1,67 @@
 ---
 import Container from '../ui/Container.astro';
-import ThemeToggle from './ThemeToggle.astro';
 import NavTabs from './NavTabs.astro';
 import { site, nav } from '../../data/site';
 
 const path = Astro.url.pathname;
 const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
+
+// Shown once the header condenses, in place of the full name.
+const initials = site.name
+	.split(' ')
+	.map((word) => word[0])
+	.join(' ');
 ---
 
-<header class="sticky top-0 z-50 py-3 print:hidden">
+{/* Named so it gets its own view-transition group and stays put while the
+    page underneath swaps; see ::view-transition-group(navbar) in motion.css. */}
+<header class="sticky top-0 z-50 py-3 print:hidden" style="view-transition-name: navbar">
 	<Container class="flex items-center gap-3">
-		{/* Floating pill: logo + nav */}
-		<div class="border-fg bg-bg flex w-full items-center justify-between border px-4 py-2">
+		{/* Bare across the top of the page; condenses into a glass pill on scroll.
+		    The classes here are the fallback when scroll timelines are unavailable. */}
+		{/* Three tracks so the nav sits dead centre regardless of how wide the
+		    wordmark and the actions either side of it happen to be. */}
+		<div
+			class="header-shell border-border bg-bg mx-auto grid w-full grid-cols-[1fr_auto_1fr] items-center rounded-full border px-4 py-2"
+		>
 			<a
 				href="/"
-				class="hover:text-accent font-display shrink-0 text-base font-semibold transition-colors"
+				class="hover:text-accent font-display grid shrink-0 justify-self-start text-base font-semibold transition-colors"
 			>
-				{site.name}
+				<span class="header-logo-full [grid-area:1/1]">{site.name}</span>
+				{/* Hidden unless the scroll animation fades it in, so the fallback
+				    (no scroll timeline, or reduced motion) shows the name alone. */}
+				<span
+					class="header-logo-short [grid-area:1/1] tracking-[0.2em] opacity-0"
+					aria-hidden="true"
+				>
+					{initials}
+				</span>
 			</a>
 
-			<div class="flex items-center">
-				<nav aria-label="Main" class="hidden sm:mr-3 sm:block">
-					<NavTabs />
-				</nav>
+			<nav aria-label="Main" class="hidden justify-self-center sm:block">
+				<NavTabs />
+			</nav>
 
-				<ThemeToggle />
+			<div class="flex items-center justify-self-end">
+				<a
+					href={`mailto:${site.email}`}
+					class="btn-fill bg-fg text-bg -mr-1.5 hidden items-center gap-2 rounded-full px-5 py-2 text-[0.9375rem] font-medium active:scale-[0.98] sm:inline-flex"
+				>
+					<span>Contact</span>
+					<svg
+						class="size-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M5 12h14M13 6l6 6-6 6"></path>
+					</svg>
+				</a>
 
 				{/* Mobile hamburger — inside the pill, only visible on small screens */}
 				<button
@@ -69,6 +106,14 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 						</li>
 					))
 				}
+				<li>
+					<a
+						href={`mailto:${site.email}`}
+						class="text-muted hover:text-fg block py-2 font-medium"
+					>
+						Contact
+					</a>
+				</li>
 			</ul>
 		</nav>
 	</div>
