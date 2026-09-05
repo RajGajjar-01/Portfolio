@@ -43,7 +43,9 @@ const initials = site.name
 				<NavTabs />
 			</nav>
 
-			<div class="flex items-center justify-self-end">
+			{/* col-start-3 explicitly: the nav is display:none on mobile, so it is not a
+			    grid item and this would otherwise fall into the centre track. */}
+			<div class="col-start-3 flex items-center justify-self-end">
 				<a
 					href={`mailto:${site.email}`}
 					class="btn-fill bg-fg text-bg -mr-1.5 hidden items-center gap-2 rounded-full px-5 py-2 text-[0.9375rem] font-medium active:scale-[0.98] sm:inline-flex"

@@ -12,24 +12,33 @@ const wordmarkSize = `min(calc(190vw / ${site.name.length}), 15rem)`;
 // Split so each letter can rise on its own offset.
 const letters = [...site.name];
 
-// Show email + LinkedIn + GitHub + X in the footer links row
-const footerLinks = socials.filter((s) => ['LinkedIn', 'GitHub', 'X'].includes(s.label));
+// Email pill first, then the profiles. Email is not a target=_blank link.
+const pills = [
+	{ label: site.email, href: `mailto:${site.email}`, external: false },
+	...socials
+		.filter((s) => s.label !== 'Email')
+		.map((s) => ({ label: s.label, href: s.href, external: true })),
+];
 ---
 
 <footer class="mt-auto pt-20 print:hidden">
-	{/* Mask the letters rise out of. clip-path rather than overflow-hidden:
+	{
+		/* Mask the letters rise out of. clip-path rather than overflow-hidden:
 	    overflow-hidden makes this a scroll container, and the view() timeline
 	    inside would resolve against this box and never activate. It also clips
 	    the horizontal bleed, so the footer itself needs no overflow.
 	    The font-size lives here so the padding below can be em-based: the clip
-	    edge has to sit under the descenders or the j tails get sliced off. */}
+	    edge has to sit under the descenders or the j tails get sliced off. */
+	}
 	<div
 		aria-hidden="true"
 		class="w-full pb-[0.2em] [clip-path:inset(0)]"
 		style={`font-size: ${wordmarkSize}`}
 	>
-		{/* Oversized wordmark, sized in vw so it always bleeds past both edges.
-		    Sits just above the page background rather than reading as text. */}
+		{
+			/* Oversized wordmark, sized in vw so it always bleeds past both edges.
+		    Sits just above the page background rather than reading as text. */
+		}
 		<div
 			class="font-display wordmark-rise pointer-events-none w-full text-center leading-[1] font-bold whitespace-pre select-none"
 			style="color: var(--wordmark)"
@@ -41,43 +50,20 @@ const footerLinks = socials.filter((s) => ['LinkedIn', 'GitHub', 'X'].includes(s
 	<Container class="pt-4 pb-12">
 		<p class="text-muted max-w-prose text-lg">{site.description}</p>
 
-		{/* Contact / social links — rendered as pills, matching the reference */}
 		<div class="mt-6 flex flex-wrap items-center gap-3">
-			{/* Email pill */}
-			<a
-				href={`mailto:${site.email}`}
-				class="border-border text-muted hover:text-fg inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm transition-colors"
-			>
-				{site.email}
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="12"
-					height="12"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					aria-hidden="true"
-				>
-					<path d="M7 7h10v10"/><path d="M7 17 17 7"/>
-				</svg>
-			</a>
-
-			{/* Social pills */}
 			{
-				footerLinks.map((s) => (
+				pills.map((pill) => (
 					<a
-						href={s.href}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="border-border text-muted hover:text-fg inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm transition-colors"
+						href={pill.href}
+						target={pill.external ? '_blank' : undefined}
+						rel={pill.external ? 'noopener noreferrer' : undefined}
+						class="border-border text-muted hover:text-fg focus-visible:text-fg group inline-flex items-center rounded-full border px-4 py-1.5 text-sm transition-colors"
 					>
-						{s.label}
+						{pill.label}
+						{/* Collapsed to zero width until hover, so it slides out of the
+						    pill's edge instead of just fading in place. */}
 						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="12"
+							class="w-0 shrink-0 opacity-0 transition-all duration-200 group-hover:ml-1.5 group-hover:w-3 group-hover:opacity-100 group-focus-visible:ml-1.5 group-focus-visible:w-3 group-focus-visible:opacity-100"
 							height="12"
 							viewBox="0 0 24 24"
 							fill="none"
@@ -87,7 +73,8 @@ const footerLinks = socials.filter((s) => ['LinkedIn', 'GitHub', 'X'].includes(s
 							stroke-linejoin="round"
 							aria-hidden="true"
 						>
-							<path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+							<path d="M7 7h10v10" />
+							<path d="M7 17 17 7" />
 						</svg>
 					</a>
 				))
@@ -95,7 +82,9 @@ const footerLinks = socials.filter((s) => ['LinkedIn', 'GitHub', 'X'].includes(s
 		</div>
 
 		{/* Divider + bottom bar */}
-		<div class="border-border mt-12 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
+		<div
+			class="border-border mt-12 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between"
+		>
 			<p class="text-muted text-sm">&copy; {year} {site.name}. All rights reserved.</p>
 
 			<ul class="text-muted flex items-center gap-5 text-sm">

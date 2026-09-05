@@ -1,0 +1,62 @@
+---
+import Section from '../ui/Section.astro';
+
+const steps = [
+	{
+		title: 'I start with retrieval, not the model.',
+		body: 'Most AI features fail on context, not on the model. I map your data, chunking, and evaluation set first, so the system returns the right thing before anyone tunes a prompt.',
+	},
+	{
+		title: 'Agents get tools, guardrails, and a paper trail.',
+		body: 'I build tool-calling agents in LangChain and LangGraph with explicit state, retries, and logging at every step, so when a run goes wrong you can see where, not guess.',
+	},
+	{
+		title: 'It ships behind a FastAPI service you can operate.',
+		body: 'Typed endpoints, PostgreSQL and pgvector, Redis, Docker. The handoff is a system your team can deploy, monitor, and change without me in the room.',
+	},
+];
+---
+
+<Section>
+	{/* Pinned while the steps scroll past underneath, so the section label
+	    stays put the way the counter does. */}
+	<div class="how-head bg-bg sticky top-36 z-10 pb-6">
+		<p class="text-muted mb-2 text-xs font-medium tracking-widest uppercase">How I work</p>
+		<h2 class="text-2xl sm:text-3xl">From retrieval to production</h2>
+	</div>
+
+	<div class="how-track">
+		{/* One counter for the whole section: it never moves, the digits roll
+		    through the window behind it. The list below is already numbered for
+		    assistive tech, so this is decoration. */}
+		<div
+			class="how-rail how-rail-fade text-accent mb-4 text-lg leading-6 font-bold tracking-[0.25em]"
+			aria-hidden="true"
+		>
+			<span>0</span>
+			<span class="how-num-window h-6 overflow-hidden">
+				<span class="how-num-strip block">
+					{steps.map((_, i) => (
+						<span class="block">{i + 1}</span>
+					))}
+				</span>
+			</span>
+		</div>
+
+		<ol class="how-steps space-y-14">
+			{
+				steps.map((step) => (
+					<li class="how-step">
+						<div class="how-step-inner">
+							<h3 class="max-w-3xl text-3xl leading-[1.15] sm:text-4xl lg:text-[3.5rem] font-medium">
+								{step.title}
+							</h3>
+
+							<p class="text-muted mt-6 max-w-2xl text-2xl leading-relaxed">{step.body}</p>
+						</div>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</Section>

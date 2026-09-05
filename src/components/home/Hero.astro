@@ -5,7 +5,6 @@ import { site } from '../../data/site';
 ---
 
 <section class="relative flex min-h-[78svh] items-center overflow-hidden py-24">
-	{/* Giant type mark as backdrop texture, not illustration. */}
 	<span
 		class="text-fg pointer-events-none absolute end-8 top-1/2 hidden -translate-y-1/2 font-mono text-[32rem] leading-none opacity-[0.04] select-none lg:block"
 		aria-hidden="true"
@@ -14,12 +13,16 @@ import { site } from '../../data/site';
 	</span>
 
 	<Container>
-		<p class="text-muted reveal-once mb-6 font-mono text-xs tracking-widest uppercase">
-			{site.role}
+		<p class="reveal-once mb-6">
+			<span
+				class="text-secondary text-sm font-bold tracking-widest uppercase"
+			>
+				{site.role}
+			</span>
 		</p>
 
 		<h1
-			class="reveal-once reveal-once-delay-1 max-w-4xl pb-1 text-4xl leading-[1.15] font-light sm:text-5xl lg:text-6xl"
+			class="reveal-once reveal-once-delay-1 max-w-4xl pb-1 text-4xl leading-[1.15] font-medium sm:text-5xl lg:text-6xl"
 		>
 			I build <em class="text-accent italic">AI systems</em> that hold up in production.
 		</h1>

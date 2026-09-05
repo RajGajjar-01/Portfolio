@@ -1,57 +1,30 @@
 ---
-// Lenis smooth scrolling integration and scroll progress tracker.
+// Wheel-inertia smooth scrolling. The reading progress bar is pure CSS
+// (scroll-timeline in motion.css) — Lenis drives the real window scroll, so
+// that keeps working without any JS help here.
 ---
 
 <script>
 	import Lenis from 'lenis';
 	import 'lenis/dist/lenis.css';
 
-	const root = document.documentElement;
 	const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-	// Progress is derived directly from real scroll position.
-	const updateProgress = () => {
-		const max = root.scrollHeight - window.innerHeight;
-		const value = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-		root.style.setProperty('--scroll-progress', String(value));
-	};
-
 	let lenis: Lenis | null = null;
 
-	function start() {
-		if (lenis) return;
-
-		lenis = new Lenis({
-			// `lerp` provides continuous interpolation for smoother scrolling.
-			lerp: 0.1,
+	function sync() {
+		if (reduced.matches) {
+			lenis?.destroy();
+			lenis = null;
+		} else if (!lenis) {
 			// Touch already has native inertia — only smooth the wheel.
-			syncTouch: false,
-			autoRaf: true,
-		});
-
-		// Marks that JS drives progress bar to allow stylesheet scrollbar hiding.
-		root.dataset.smoothScroll = '';
+			lenis = new Lenis({ lerp: 0.1, syncTouch: false, autoRaf: true });
+		}
 	}
-
-	function stop() {
-		lenis?.destroy();
-		lenis = null;
-		delete root.dataset.smoothScroll;
-	}
-
-	const sync = () => (reduced.matches ? stop() : start());
 
 	sync();
 	reduced.addEventListener('change', sync);
 
-	window.addEventListener('scroll', updateProgress, { passive: true });
-	window.addEventListener('resize', updateProgress, { passive: true });
-	updateProgress();
-
 	// This module is not re-executed on soft navigation, so Lenis keeps the
 	// outgoing page's scroll offset unless it is told to snap back.
-	document.addEventListener('astro:after-swap', () => {
-		lenis?.scrollTo(0, { immediate: true });
-		updateProgress();
-	});
+	document.addEventListener('astro:after-swap', () => lenis?.scrollTo(0, { immediate: true }));
 </script>

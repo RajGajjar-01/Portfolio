@@ -23,9 +23,9 @@ export const nav = [
 	{ label: 'Resume', href: '/resume' },
 ] as const;
 
-export const socials: { label: string; href: string; icon?: 'github' | 'linkedin' | 'x' }[] = [
-	{ label: 'GitHub', href: 'https://github.com/RajGajjar-01', icon: 'github' },
-	{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/rajgajjar04/', icon: 'linkedin' },
-	{ label: 'X', href: 'https://x.com/rajgajjar_11', icon: 'x' },
+export const socials = [
+	{ label: 'GitHub', href: 'https://github.com/RajGajjar-01' },
+	{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/rajgajjar04/' },
+	{ label: 'X', href: 'https://x.com/rajgajjar_11' },
 	{ label: 'Email', href: `mailto:${site.email}` },
 ];

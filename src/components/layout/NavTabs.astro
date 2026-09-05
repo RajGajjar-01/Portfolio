@@ -12,9 +12,18 @@ const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 				<a
 					href={item.href}
 					aria-current={isActive(item.href) ? 'page' : undefined}
-					class="text-muted hover:text-fg aria-[current=page]:text-fg text-sm font-medium transition-colors"
+					class="tab text-fg hover:text-accent aria-[current=page]:text-accent text-sm font-semibold transition-colors"
 				>
-					{item.label}
+					{/* Per-letter spans get announced a character at a time, so the
+					    label is read from here and the roll is decoration. */}
+					<span class="sr-only">{item.label}</span>
+					<span class="tab-roll" aria-hidden="true">
+						{[...item.label].map((char, i) => (
+							<span class="tab-letter" style={`--i:${i}`} data-char={char}>
+								{char}
+							</span>
+						))}
+					</span>
 				</a>
 			</li>
 		))

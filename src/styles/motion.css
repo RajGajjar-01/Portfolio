@@ -1,5 +1,18 @@
 .scroll-progress {
-	scale: var(--scroll-progress, 0) 1;
+	scale: 0 1;
+}
+
+/* Only meaningful once a timeline can roll it; the list itself carries the
+   numbering for everyone else. */
+.how-rail {
+	display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+	.scroll-progress {
+		animation: scroll-progress linear both;
+		animation-timeline: scroll(root block);
+	}
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -28,22 +41,82 @@
 			--reveal-step: 270ms;
 		}
 
+		/* Background copy resolves word by word as the paragraph passes: each
+		   word runs on its own paragraph's timeline, offset by index so the
+		   wave sweeps left to right instead of a whole line lighting at once. */
+		.reveal-words {
+			view-timeline-name: --words;
+		}
+
+		.reveal-word {
+			display: inline-block;
+			animation: word-in linear both;
+			animation-timeline: --words;
+			animation-range: cover calc(var(--i) / var(--n) * 45%) cover
+				calc(35% + var(--i) / var(--n) * 45%);
+		}
+
+		/* How I work: each step owns a tall scroll track and declares its own
+		   view timeline, so the pinned block inside can animate against the
+		   track's progress rather than its own frozen sticky position. The
+		   number rides the same timeline on separate keyframes, rolling up out
+		   of a clipped window as the step hands over. */
+		.how-step {
+			min-height: 92vh;
+			view-timeline-name: --how-step;
+		}
+
+		/* One counter for the whole run of steps: the window is pinned for the
+		   length of the track and never moves, so only the digits inside it
+		   travel. */
+		.how-track {
+			view-timeline-name: --how-track;
+		}
+
+		/* Flex so the fixed leading zero sits beside the window the changing
+		   digit rolls through. */
+		.how-rail {
+			display: flex;
+			position: sticky;
+			top: 18rem;
+			z-index: 1;
+		}
+
+		.how-num-strip {
+			animation: how-num-strip linear both;
+			animation-timeline: --how-track;
+			animation-range: cover 0% cover 100%;
+		}
+
+		/* Dims out with the last step so the counter is never left lit above an
+		   empty slot. Opacity only: translating the rail lifts it clear of the
+		   header's background and it reappears in the gap under the navbar. */
+		.how-rail-fade {
+			animation: how-rail linear both;
+			animation-timeline: --how-track;
+			animation-range: cover 0% cover 100%;
+		}
+
+		.how-step-inner {
+			position: sticky;
+			top: 21rem;
+			animation: how-step linear both;
+			animation-timeline: --how-step;
+			animation-range: cover 0% cover 100%;
+		}
+
 		/* Footer wordmark: each letter slides up out of the mask on its own
 		   offset, so mid-scroll the word is a ragged line of letters at
 		   different heights. Scroll-driven animations ignore animation-delay,
 		   so the stagger comes from shifting each letter's range instead. */
 		.wordmark-rise > span {
 			display: inline-block;
-			animation: wordmark-rise linear both;
+			/* Stretched from the cap line, so the letter squashes back to shape
+			   as it lands rather than scaling about its middle. */
+			transform-origin: 50% 0%;
+			animation: wordmark-rise cubic-bezier(0.68, -0.55, 0.27, 1.55) both;
 			animation-timeline: view();
-			animation-range: entry calc(var(--i) * 4%) entry calc(62% + var(--i) * 4%);
-		}
-
-		/* Slow drift for large media. Subtle on purpose. */
-		.parallax {
-			animation: parallax linear both;
-			animation-timeline: view();
-			animation-range: cover 0% cover 100%;
+			animation-range: entry calc(20% + var(--i) * 4%) entry calc(170% + var(--i) * 4%);
 		}
 	}
 
@@ -62,6 +135,7 @@
 
 		.header-shell {
 			animation-name: header-condense;
+			animation-timing-function: ease-in-out;
 		}
 
 		.header-logo-full {
@@ -73,12 +147,23 @@
 		}
 	}
 
+	/* Staggered left to right, so the word peels over rather than flipping. */
+	.tab-letter {
+		transition: translate 300ms cubic-bezier(0.22, 1, 0.36, 1);
+		transition-delay: calc(var(--i) * 22ms);
+	}
+
+	.tab:hover .tab-letter,
+	.tab:focus-visible .tab-letter {
+		translate: 0 -100%;
+	}
+
 	/* Hide native vertical scrollbar only when custom progress bar is active. */
-	:root[data-smooth-scroll]:has(.scroll-progress) {
+	:root:has(.scroll-progress) {
 		scrollbar-width: none;
 	}
 
-	:root[data-smooth-scroll]:has(.scroll-progress)::-webkit-scrollbar {
+	:root:has(.scroll-progress)::-webkit-scrollbar {
 		display: none;
 	}
 
@@ -93,11 +178,16 @@
 		animation: 1000ms cubic-bezier(0.75, 0, 0.1, 1) both page-in;
 	}
 
-	/* The header holds still above the transition instead of riding it. It is
-	   the only named group — everything else stays in the root snapshot so it
-	   rides the page transition rather than animating on its own. */
+	/* The header gets its own group so it rides above the page transition
+	   instead of being dragged along by page-out's scale. Keep the UA's own
+	   group animation: `animation: none` here would pin the group to the
+	   outgoing geometry for the whole transition *and* zero out the duration
+	   and fill-mode that the old/new snapshots inherit through the image pair,
+	   so neither would fade — leaving a stale, mis-sized header stacked on top
+	   of the incoming one. Overriding only the duration keeps the morph and the
+	   cross-fade, and settles them well before the page finishes. */
 	::view-transition-group(navbar) {
-		animation: none;
+		animation-duration: 300ms;
 		z-index: 100;
 	}
 }
@@ -124,19 +214,23 @@
 
 @keyframes wordmark-rise {
 	from {
-		translate: 0 100%;
+		opacity: 0;
+		translate: 0 120%;
+		scale: 0.7 2.3;
 	}
 	to {
+		opacity: 1;
 		translate: 0 0;
+		scale: 1 1;
 	}
 }
 
-@keyframes parallax {
+@keyframes scroll-progress {
 	from {
-		translate: 0 2.5rem;
+		scale: 0 1;
 	}
 	to {
-		translate: 0 -2.5rem;
+		scale: 1 1;
 	}
 }
 
@@ -160,11 +254,11 @@
 		border-radius: 999px;
 		border-color: var(--border);
 		/* Translucent so the blur behind it actually reads as glass. */
-		background-color: color-mix(in oklch, var(--bg) 68%, transparent);
+		background-color: color-mix(in oklch, var(--bg) 45%, transparent);
 		/* Saturation bloom is what separates glass from plain frosting: colour
 		   passing through the panel intensifies rather than just softening. */
-		-webkit-backdrop-filter: blur(14px) saturate(180%);
-		backdrop-filter: blur(14px) saturate(180%);
+		-webkit-backdrop-filter: blur(40px) saturate(220%);
+		backdrop-filter: blur(40px) saturate(220%);
 		/* Lit top edge, shaded bottom edge, and depth beneath. */
 		box-shadow:
 			inset 0 1px 0 rgb(255 255 255 / 0.1),
@@ -216,5 +310,146 @@
 	to {
 		transform: translateY(0%);
 		clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+	}
+}
+
+@keyframes how-step {
+	from {
+		opacity: 0;
+		translate: 0 3rem;
+	}
+	32%,
+	62% {
+		opacity: 1;
+		translate: 0 0;
+	}
+	/* Sticky release carries the block ~190px up on its own, so the exit is
+	   real travel rather than a nudge. It must reach zero before it clears the
+	   header's background at y=144, or it reappears over the title. */
+	74%,
+	100% {
+		opacity: 0;
+		translate: 0 0;
+	}
+}
+
+@keyframes how-rail {
+	0%,
+	82% {
+		opacity: 1;
+	}
+	92%,
+	100% {
+		opacity: 0;
+	}
+}
+
+/* Each digit box is 1.5rem tall, so a step is one box of travel. The holds
+   are placed where each step is actually pinned, not at even thirds: the
+   track's cover range includes a viewport of lead-in and lead-out. */
+@keyframes how-num-strip {
+	0%,
+	32% {
+		translate: 0 0;
+	}
+	38%,
+	56% {
+		translate: 0 -1.5rem;
+	}
+	62%,
+	100% {
+		translate: 0 -3rem;
+	}
+}
+
+/* Opacity only, deliberately. ReactBits' ScrollReveal also blurs, but a filter
+   on each of ~130 word spans measured 44-61 dropped frames out of 90 scrolling
+   this section (p95 50-83ms), against 0-4 dropped and a flat 16.7ms without.
+   Radius made no difference — the cost is having a filter at all. */
+@keyframes word-in {
+	from {
+		opacity: 0.12;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Home page paper plane. Off unless the browser can scroll-drive it — a
+   static trail with a plane parked at the top is worse than no trail. */
+.flight {
+	display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	@supports (animation-timeline: scroll()) and (offset-path: path('M0 0')) {
+		/* Under 64rem the 1440px coordinate box is mostly off-screen, so the
+		   trail would read as a stray line. Cheaper than a second path. */
+		@media (min-width: 64rem) {
+			.flight {
+				display: block;
+			}
+		}
+
+		.flight {
+			position: absolute;
+			top: 0;
+			left: 50%;
+			translate: -50% 0;
+			pointer-events: none;
+			z-index: 0;
+		}
+
+		/* Both ride the document scroll over the trail's own length, so the
+		   plane's progress is the page's progress and it stays near the point
+		   of the path the viewport is showing. */
+		.flight-draw,
+		.flight-plane {
+			animation-timeline: scroll(root block);
+			animation-range: var(--flight-start) var(--flight-end);
+			animation-timing-function: linear;
+			animation-fill-mode: both;
+		}
+
+		.flight-draw {
+			animation-name: flight-draw;
+			stroke-dasharray: 1;
+		}
+
+		.flight-plane {
+			position: absolute;
+			top: 0;
+			left: 0;
+			offset-path: var(--flight-d);
+			/* The sprite's nose sits 33deg below its +x axis. */
+			offset-rotate: auto -33deg;
+			animation-name: flight-fly;
+		}
+	}
+}
+
+@keyframes flight-draw {
+	from {
+		stroke-dashoffset: 1;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+/* The opacity ramp is what keeps the plane out of the hero before the trail
+   starts: fill-mode holds this first keyframe, so it is invisible rather than
+   parked at the head of the path waiting to be scrolled to. */
+@keyframes flight-fly {
+	from {
+		offset-distance: 0%;
+		opacity: 0;
+	}
+	6% {
+		opacity: 1;
+	}
+	to {
+		offset-distance: 100%;
+		opacity: 1;
 	}
 }

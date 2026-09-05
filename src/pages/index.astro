@@ -2,51 +2,50 @@
 import Page from '../layouts/Page.astro';
 import Section from '../components/ui/Section.astro';
 import Hero from '../components/home/Hero.astro';
+import FlightPath from '../components/home/FlightPath.astro';
 import Intro from '../components/home/Intro.astro';
 import About from '../components/home/About.astro';
+import HowIWork from '../components/home/HowIWork.astro';
 import Contact from '../components/home/Contact.astro';
 import ProjectCard from '../components/ui/ProjectCard.astro';
-import PostCard from '../components/ui/PostCard.astro';
-import { getFeaturedProjects, getPosts } from '../lib/content';
+import { getFeaturedProjects } from '../lib/content';
 
 const projects = await getFeaturedProjects(3);
-const posts = (await getPosts()).slice(0, 3);
 ---
 
 <!-- Person and WebSite JSON-LD are emitted sitewide from Base.astro. -->
 <Page>
-	<Intro />
-	<Hero />
-
 	{
-		projects.length > 0 && (
-			<Section
-				eyebrow="Selected work"
-				title="Things I have built"
-				action={{ label: 'All work', href: '/projects' }}
-			>
-				<div class="grid gap-x-8 gap-y-14 sm:grid-cols-2">
-					{projects.map((project, i) => (
-						<ProjectCard project={project} eager={i === 0} />
-					))}
-				</div>
-			</Section>
-		)
+		/* overflow-clip, not overflow-hidden: the trail box is wider and taller
+	    than the page, and clip keeps the sticky blocks in "How I work" working
+	    against the viewport instead of a new scroll container. */
 	}
+	<div class="relative overflow-clip">
+		<FlightPath />
 
-	<About />
+		<Intro />
+		<Hero />
 
-	{
-		posts.length > 0 && (
-			<Section title="Recent posts" action={{ label: 'All posts', href: '/blog' }}>
-				<div>
-					{posts.map((post) => (
-						<PostCard post={post} />
-					))}
-				</div>
-			</Section>
-		)
-	}
+		{
+			projects.length > 0 && (
+				<Section
+					eyebrow="Selected work"
+					title="Things I have built"
+					action={{ label: 'All work', href: '/projects' }}
+				>
+					<div class="grid gap-x-8 gap-y-14 sm:grid-cols-2">
+						{projects.map((project, i) => (
+							<ProjectCard project={project} eager={i === 0} />
+						))}
+					</div>
+				</Section>
+			)
+		}
 
-	<Contact />
+		<About />
+
+		<HowIWork />
+
+		<Contact />
+	</div>
 </Page>

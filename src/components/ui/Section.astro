@@ -8,15 +8,14 @@ interface Props {
 	/** Optional link rendered opposite the title, e.g. "All work". */
 	action?: { label: string; href: string };
 	id?: string;
-	width?: 'default' | 'wide' | 'prose';
 	class?: string;
 }
 
-const { title, eyebrow, action, id, width = 'default', class: className = '' } = Astro.props;
+const { title, eyebrow, action, id, class: className = '' } = Astro.props;
 ---
 
 <section id={id} class:list={['py-20 sm:py-28', className]}>
-	<Container width={width}>
+	<Container>
 		{
 			(title || eyebrow) && (
 				<header class="reveal mb-12 flex flex-wrap items-end justify-between gap-4">

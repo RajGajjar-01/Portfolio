@@ -10,6 +10,7 @@
 	--border: oklch(29% 0.014 265);
 	--accent: #ff7557;
 	--accent-fg: #141414;
+	--secondary: #7c8cff;
 	/* Footer wordmark: sits just above the page background so the name reads as
 	   a watermark rather than as content. */
 	--wordmark: #242424;
@@ -25,7 +26,7 @@
 	--color-muted: var(--muted);
 	--color-border: var(--border);
 	--color-accent: var(--accent);
-	--color-accent-fg: var(--accent-fg);
+	--color-secondary: var(--secondary);
 
 	--font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 	--font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
@@ -39,6 +40,8 @@
 	*::before,
 	*::after {
 		border-color: var(--border);
+		scrollbar-width: thin;
+		scrollbar-color: var(--border) transparent;
 	}
 
 	html {
@@ -54,8 +57,9 @@
 		}
 	}
 
-	/* Disable native smooth scroll when Lenis is active to avoid conflicts. */
-	:root[data-smooth-scroll] {
+	/* Lenis animates the real window scroll, so native smooth scroll fights it
+	   (lenis.css no longer ships this rule itself). Lenis sets .lenis. */
+	html.lenis {
 		scroll-behavior: auto;
 	}
 
@@ -97,6 +101,27 @@
 }
 
 @layer components {
+	/* Nav labels roll letter by letter: each letter carries a copy of itself one
+	   line below, and the pair slides up as one. Line-height sets the clip box,
+	   so it has to clear descenders or the copy peeks out below at rest. */
+	.tab-roll {
+		display: inline-flex;
+		overflow: hidden;
+		line-height: 1.6;
+	}
+
+	.tab-letter {
+		position: relative;
+		display: inline-block;
+	}
+
+	.tab-letter::after {
+		content: attr(data-char);
+		position: absolute;
+		inset-inline-start: 0;
+		top: 100%;
+	}
+
 	/* Accent fill that grows from wherever the pointer entered. The origin is
 	   set as --x/--y by the delegated handler in Base.astro, since CSS has no
 	   way to know where the pointer is. */
@@ -158,6 +183,14 @@
 
 	.skip-link:focus-visible {
 		translate: 0 0;
+	}
+
+	/* Touch-only devices have no tab key to reach it with, but do hand out
+	   :focus-visible on tap — which surfaced it for no reason. */
+	@media (pointer: coarse) and (hover: none) {
+		.skip-link {
+			display: none;
+		}
 	}
 
 	/* Typography styles for rendered Markdown prose. */
@@ -240,6 +273,8 @@
 		border: 1px solid var(--border);
 		border-radius: 0.5rem;
 		overflow-x: auto;
+		/* overflow-x:auto alone computes overflow-y to auto: stray bar. */
+		overflow-y: hidden;
 		font-size: 0.875rem;
 		line-height: 1.6;
 	}

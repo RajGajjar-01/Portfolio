@@ -4,11 +4,7 @@ import Container from '../components/ui/Container.astro';
 import Button from '../components/ui/Button.astro';
 import Tag from '../components/ui/Tag.astro';
 import { site, socials } from '../data/site';
-import { experience, skills, resumePdf, type ResumeItem } from '../data/resume';
-
-const sections: { heading: string; items: ResumeItem[] }[] = [
-	{ heading: 'Experience', items: experience },
-];
+import { experience, skills, resumePdf } from '../data/resume';
 ---
 
 <Page title="Resume" description={`Resume and background for ${site.name}.`}>
@@ -48,52 +44,44 @@ const sections: { heading: string; items: ResumeItem[] }[] = [
 			}
 		</header>
 
-		{
-			sections.map(({ heading, items }) => (
-				<section class="mb-14">
-					<h2 class="text-muted mb-8 font-mono text-xs tracking-widest uppercase">{heading}</h2>
+		<section class="mb-14">
+			<h2 class="text-muted mb-8 font-mono text-xs tracking-widest uppercase">Experience</h2>
 
-					<div class="space-y-10">
-						{items.map((item) => (
-							<div class="reveal grid gap-2 sm:grid-cols-[8rem_1fr] sm:gap-8">
-								<p class="text-muted pt-1 font-mono text-xs">
-									{item.end && item.end !== item.start
-										? `${item.start} - ${item.end}`
-										: item.end
-											? item.start
-											: `${item.start} - Present`}
+			<div class="space-y-10">
+				{
+					experience.map((item) => (
+						<div class="reveal grid gap-2 sm:grid-cols-[8rem_1fr] sm:gap-8">
+							<p class="text-muted pt-1 font-mono text-xs">
+								{item.end && item.end !== item.start
+									? `${item.start} - ${item.end}`
+									: item.end
+										? item.start
+										: `${item.start} - Present`}
+							</p>
+
+							<div>
+								<h3 class="text-xl">{item.title}</h3>
+								<p class="text-muted mt-1 text-sm">
+									{item.org}
+									{item.location && ` · ${item.location}`}
 								</p>
 
-								<div>
-									<h3 class="text-xl">{item.title}</h3>
-									<p class="text-muted mt-1 text-sm">
-										{item.org}
-										{item.location && ` · ${item.location}`}
-									</p>
-
-									{item.summary && (
-										<p class="text-muted mt-3 max-w-prose text-sm leading-relaxed">
-											{item.summary}
-										</p>
-									)}
-
-									{item.points && (
-										<ul class="mt-3 max-w-prose space-y-2">
-											{item.points.map((point) => (
-												<li class="text-muted flex gap-2.5 text-sm leading-relaxed">
-													<span class="text-accent mt-2 size-1 shrink-0 rounded-full bg-current" />
-													<span>{point}</span>
-												</li>
-											))}
-										</ul>
-									)}
-								</div>
+								{item.points && (
+									<ul class="mt-3 max-w-prose space-y-2">
+										{item.points.map((point) => (
+											<li class="text-muted flex gap-2.5 text-sm leading-relaxed">
+												<span class="text-accent mt-2 size-1 shrink-0 rounded-full bg-current" />
+												<span>{point}</span>
+											</li>
+										))}
+									</ul>
+								)}
 							</div>
-						))}
-					</div>
-				</section>
-			))
-		}
+						</div>
+					))
+				}
+			</div>
+		</section>
 
 		<section>
 			<h2 class="text-muted mb-8 font-mono text-xs tracking-widest uppercase">Skills</h2>

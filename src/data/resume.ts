@@ -5,7 +5,6 @@ export interface ResumeItem {
 	location?: string;
 	start: string;
 	end?: string;
-	summary?: string;
 	points?: string[];
 }
 
