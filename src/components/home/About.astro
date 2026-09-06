@@ -25,22 +25,27 @@ const stack = [
 
 <Section id="about" title="Background">
 	<div class="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
-		<div class="space-y-5 text-lg leading-relaxed">
+		<div class="reveal-words space-y-5 text-lg leading-relaxed">
 			{
-				paragraphs.map((text) => {
-					const words = text.split(' ');
-					return (
-						<p class="reveal-words">
-							{words.map((word, i) => (
-								<Fragment>
-									<span class="reveal-word" style={`--i:${i};--n:${words.length}`}>
-										{word}
-									</span>{' '}
-								</Fragment>
-							))}
+				(() => {
+					const counts = paragraphs.map((text) => text.split(' ').length);
+					const total = counts.reduce((a, b) => a + b, 0);
+					let index = 0;
+					return paragraphs.map((text) => (
+						<p>
+							{text.split(' ').map((word) => {
+								const i = index++;
+								return (
+									<Fragment>
+										<span class="reveal-word" style={`--i:${i};--n:${total}`}>
+											{word}
+										</span>{' '}
+									</Fragment>
+								);
+							})}
 						</p>
-					);
-				})
+					));
+				})()
 			}
 		</div>
 

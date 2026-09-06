@@ -3,6 +3,7 @@ import Page from '../layouts/Page.astro';
 import Section from '../components/ui/Section.astro';
 import Hero from '../components/home/Hero.astro';
 import FlightPath from '../components/home/FlightPath.astro';
+import PathEditor from '../components/home/PathEditor.astro';
 import Intro from '../components/home/Intro.astro';
 import About from '../components/home/About.astro';
 import HowIWork from '../components/home/HowIWork.astro';
@@ -22,6 +23,8 @@ const projects = await getFeaturedProjects(3);
 	}
 	<div class="relative overflow-clip">
 		<FlightPath />
+		{/* Dev-only flight path editor; compiles out of production builds. */}
+		{import.meta.env.DEV && <PathEditor />}
 
 		<Intro />
 		<Hero />

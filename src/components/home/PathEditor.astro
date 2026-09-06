@@ -1,0 +1,407 @@
+---
+/**
+ * Dev-only editor for the paper plane's route. Not part of the site: index.astro
+ * renders it behind `import.meta.env.DEV`, and the script is `is:inline` so a
+ * production build ships neither the markup nor a byte of JS.
+ *
+ * It draws on top of the real page, in the same 1440x5900 pixel box FlightPath
+ * uses, so a curve dragged past a section is past that section for real. The
+ * seed geometry is read out of the rendered FlightPath at load — there is no
+ * second copy of the path here to fall out of date.
+ *
+ * Output is the two arrays, formatted for pasting straight over the `motion`
+ * and `trail` literals in FlightPath.astro.
+ */
+---
+
+<div id="pe" hidden>
+	<svg id="pe-svg" viewBox="0 0 1440 5900" width="1440" height="5900" pointer-events="none"></svg>
+</div>
+
+<div id="pe-panel" hidden>
+	<div class="pe-row">
+		<button id="pe-add" type="button">+ segment</button>
+		<button id="pe-copy" type="button">copy</button>
+		<button id="pe-reset" type="button">reset</button>
+	</div>
+	<p>
+		drag <b style="color:#22d3ee">&#9679;</b> anchors, <b style="color:#e879f9">&#9632;</b> handles (alt&nbsp;=&nbsp;break
+		the tangent) &middot; click a curve to lift it out of the dashed trail &middot; shift-click an anchor
+		to delete it
+	</p>
+	<textarea id="pe-out" spellcheck="false" readonly></textarea>
+</div>
+
+<button id="pe-toggle" type="button" title="Edit flight path">&#9998;</button>
+
+<style>
+	/* The box spans the whole page, so it must not eat clicks meant for the
+	   site; the shapes inside opt back in individually. */
+	#pe {
+		pointer-events: none;
+		position: absolute;
+		top: 0;
+		left: 50%;
+		translate: -50% 0;
+		width: 1440px;
+		height: 5900px;
+		z-index: 50;
+	}
+
+	#pe-toggle {
+		position: fixed;
+		right: 12px;
+		bottom: 12px;
+		z-index: 61;
+		width: 34px;
+		height: 34px;
+		border-radius: 999px;
+		border: 1px solid #444;
+		background: #111;
+		color: #eee;
+		cursor: pointer;
+	}
+
+	#pe-panel {
+		position: fixed;
+		right: 12px;
+		bottom: 56px;
+		z-index: 60;
+		display: flex;
+		width: 340px;
+		max-height: 60vh;
+		flex-direction: column;
+		gap: 8px;
+		border: 1px solid #333;
+		background: #111;
+		padding: 10px;
+		color: #ddd;
+		font:
+			12px/1.45 ui-monospace,
+			monospace;
+	}
+
+	/* Stops the browser turning a handle drag into a scroll or a selection. */
+	#pe-svg {
+		touch-action: none;
+	}
+
+	#pe-panel[hidden],
+	#pe[hidden] {
+		display: none;
+	}
+
+	.pe-row {
+		display: flex;
+		gap: 6px;
+	}
+
+	#pe-panel button {
+		border: 1px solid #555;
+		background: #222;
+		padding: 3px 8px;
+		color: #ddd;
+		cursor: pointer;
+	}
+
+	#pe-panel p {
+		margin: 0;
+		color: #8b8b8b;
+	}
+
+	#pe-out {
+		flex: 1;
+		min-height: 180px;
+		resize: vertical;
+		border: 1px solid #333;
+		background: #000;
+		color: #86efac;
+		font: inherit;
+	}
+</style>
+
+<script is:inline>
+	(() => {
+		if (window.__peInit) return;
+		window.__peInit = true;
+
+		const $ = (id) => document.getElementById(id);
+		let start,
+			segs = [],
+			seed = '',
+			els = null;
+
+		/* Only the M/C subset FlightPath is written in. Anything else would have
+		   to be taught to the parser and the serialiser together. */
+		const parse = (d) => {
+			const t = d.match(/-?[\d.]+|[MC]/g) || [];
+			let i = 0,
+				first = null;
+			const out = [];
+			while (i < t.length) {
+				const cmd = t[i++];
+				if (cmd === 'M') {
+					/* Only the first M matters here: a trail's later ones just
+					   re-anchor after a gap, which `walk` recomputes anyway. */
+					const p = { x: +t[i++], y: +t[i++] };
+					if (!first) first = p;
+				} else if (cmd === 'C') {
+					out.push({
+						c1: { x: +t[i++], y: +t[i++] },
+						c2: { x: +t[i++], y: +t[i++] },
+						p: { x: +t[i++], y: +t[i++] },
+						on: true,
+					});
+				} else {
+					throw new Error('unsupported command: ' + cmd);
+				}
+			}
+			return [first, out];
+		};
+
+		const n = (v) => (Math.round(v * 10) / 10).toFixed(1);
+		const cStr = (s) =>
+			`C${n(s.c1.x)} ${n(s.c1.y)} ${n(s.c2.x)} ${n(s.c2.y)} ${n(s.p.x)} ${n(s.p.y)}`;
+		const mStr = (p) => `M${n(p.x)} ${n(p.y)}`;
+		const points = () => [start, ...segs.map((s) => s.p)];
+
+		const motionD = () => mStr(start) + segs.map(cStr).join('');
+
+		/* Same walk for the on-screen preview and the emitted array: a run of
+		   dropped segments becomes a gap, and the next kept one re-opens with an
+		   M at wherever the pen actually is. */
+		const walk = (fn) => {
+			let pen = false,
+				prev = start;
+			for (const s of segs) {
+				if (s.on) {
+					if (!pen) fn(mStr(prev));
+					fn(cStr(s));
+					pen = true;
+				} else pen = false;
+				prev = s.p;
+			}
+		};
+
+		const trailD = () => {
+			let d = '';
+			walk((c) => (d += c));
+			return d;
+		};
+
+		const emit = () => {
+			const trail = [];
+			walk((c) => trail.push(c));
+			const arr = (name, list) =>
+				`const ${name} = [\n\t${list.map((c) => `'${c}',`).join('\n\t')}\n].join('');`;
+			$('pe-out').value =
+				arr('motion', [mStr(start), ...segs.map(cStr)]) + '\n\n' + arr('trail', trail);
+		};
+
+		const attrs = (el, o) => {
+			for (const k in o) el.setAttribute(k, o[k]);
+		};
+
+		/* Presentation lives on the elements: they are built with innerHTML, so
+		   they never carry Astro's scope attribute and no scoped rule can reach
+		   them. pointer-events is off on the svg and back on per shape, so the
+		   overlay only swallows clicks that land on a handle. */
+		const build = () => {
+			const hit = 'fill="none" stroke="transparent" stroke-width="14" pointer-events="stroke"';
+			const grab = 'pointer-events="all" style="cursor:move"';
+			let h =
+				'<path fill="none" stroke="#22d3ee" stroke-opacity=".4" stroke-width="2"/>' +
+				'<path fill="none" stroke="#86efac" stroke-opacity=".6" stroke-width="5"/>';
+			segs.forEach((_, i) => {
+				h += `<path ${hit} style="cursor:pointer" data-seg="${i}"/>`;
+				h +=
+					'<line stroke="#e879f9" stroke-opacity=".4"/><line stroke="#e879f9" stroke-opacity=".4"/>';
+				h += `<rect fill="#e879f9" ${grab} data-h="${i}.c1" width="10" height="10"/>`;
+				h += `<rect fill="#e879f9" ${grab} data-h="${i}.c2" width="10" height="10"/>`;
+			});
+			points().forEach((_, i) => {
+				h += `<circle fill="#22d3ee" ${grab} data-a="${i}" r="7"/>`;
+			});
+			const svg = $('pe-svg');
+			svg.innerHTML = h;
+			const q = (sel) => [...svg.querySelectorAll(sel)];
+			els = {
+				route: svg.children[0],
+				trail: svg.children[1],
+				hits: q('[data-seg]'),
+				legs: q('line'),
+				ctrls: q('[data-h]'),
+				anchors: q('[data-a]'),
+			};
+			sync();
+			emit();
+		};
+
+		/* Dragging only moves points, never adds or removes them, so it writes
+		   coordinates into the existing nodes. Rebuilding the markup here would
+		   destroy the element holding the pointer capture mid-gesture — which is
+		   what turned a drag into a runaway text selection. */
+		const sync = () => {
+			const pts = points();
+			els.route.setAttribute('d', motionD());
+			els.trail.setAttribute('d', trailD());
+			segs.forEach((s, i) => {
+				const a = pts[i];
+				els.hits[i].setAttribute('d', `M${a.x} ${a.y}${cStr(s)}`);
+				attrs(els.legs[2 * i], { x1: a.x, y1: a.y, x2: s.c1.x, y2: s.c1.y });
+				attrs(els.legs[2 * i + 1], { x1: s.p.x, y1: s.p.y, x2: s.c2.x, y2: s.c2.y });
+				attrs(els.ctrls[2 * i], { x: s.c1.x - 5, y: s.c1.y - 5 });
+				attrs(els.ctrls[2 * i + 1], { x: s.c2.x - 5, y: s.c2.y - 5 });
+			});
+			pts.forEach((p, i) => attrs(els.anchors[i], { cx: p.x, cy: p.y }));
+		};
+
+		/* Seed from the rendered FlightPath: the continuous route off the CSS
+		   custom property it already sets, and which segments are in the dashed
+		   trail by matching the painted path's curves against it. */
+		const load = () => {
+			const flight = document.querySelector('.flight');
+			if (!flight) return false;
+			const m = /path\(['"](.+?)['"]\)/.exec(flight.style.getPropertyValue('--flight-d'));
+			if (!m) return false;
+			seed = m[1];
+			[start, segs] = parse(seed);
+			const painted = flight.querySelector('svg path[stroke-dasharray]');
+			if (painted) {
+				const kept = new Set(parse(painted.getAttribute('d'))[1].map(cStr));
+				segs.forEach((s) => (s.on = kept.has(cStr(s))));
+			}
+			return true;
+		};
+
+		/* Pointer position in the 1440x5900 user space, whatever the page is
+		   scrolled to or zoomed at. */
+		const at = (e) => {
+			const svg = $('pe-svg');
+			const p = svg.createSVGPoint();
+			p.x = e.clientX;
+			p.y = e.clientY;
+			return p.matrixTransform(svg.getScreenCTM().inverse());
+		};
+
+		let drag = null,
+			moved = false;
+
+		const onDown = (e) => {
+			const el = e.target;
+			if (el.dataset.a !== undefined) {
+				const i = +el.dataset.a;
+				if (e.shiftKey && segs.length > 1) {
+					if (i === 0) {
+						start = segs[0].p;
+						segs.shift();
+					} else segs.splice(i - 1, 1);
+					return build();
+				}
+				drag = { kind: 'a', i, pt: points()[i] };
+			} else if (el.dataset.h) {
+				const [i, k] = el.dataset.h.split('.');
+				drag = { kind: 'h', i: +i, k, alt: e.altKey };
+			} else return;
+			moved = false;
+			e.preventDefault();
+			/* Capture on the svg, the one node a rebuild cannot take away. */
+			$('pe-svg').setPointerCapture(e.pointerId);
+			document.body.style.userSelect = 'none';
+		};
+
+		const onMove = (e) => {
+			if (!drag) return;
+			moved = true;
+			const { x, y } = at(e);
+			if (drag.kind === 'a') {
+				const dx = x - drag.pt.x,
+					dy = y - drag.pt.y;
+				drag.pt.x = x;
+				drag.pt.y = y;
+				/* An anchor carries the two handles that meet at it, so moving a
+				   point translates the curve instead of reshaping it. */
+				const before = segs[drag.i - 1],
+					after = segs[drag.i];
+				if (before) {
+					before.c2.x += dx;
+					before.c2.y += dy;
+				}
+				if (after) {
+					after.c1.x += dx;
+					after.c1.y += dy;
+				}
+			} else {
+				const s = segs[drag.i];
+				s[drag.k].x = x;
+				s[drag.k].y = y;
+				if (!drag.alt) {
+					const anchor = drag.k === 'c1' ? (drag.i ? segs[drag.i - 1].p : start) : s.p;
+					const twin =
+						drag.k === 'c1'
+							? segs[drag.i - 1] && segs[drag.i - 1].c2
+							: segs[drag.i + 1] && segs[drag.i + 1].c1;
+					if (twin) {
+						twin.x = 2 * anchor.x - x;
+						twin.y = 2 * anchor.y - y;
+					}
+				}
+			}
+			sync();
+		};
+
+		const onUp = () => {
+			if (!drag) return;
+			drag = null;
+			document.body.style.userSelect = '';
+			emit();
+		};
+
+		const init = () => {
+			if (!$('pe') || !load()) return;
+			const box = $('pe'),
+				panel = $('pe-panel');
+			const show = (on) => {
+				box.hidden = panel.hidden = !on;
+				localStorage.setItem('pe', on ? '1' : '');
+				if (on) build();
+			};
+
+			$('pe-toggle').onclick = () => show(box.hidden);
+			$('pe-copy').onclick = () => navigator.clipboard.writeText($('pe-out').value);
+			$('pe-reset').onclick = () => {
+				load();
+				build();
+			};
+			$('pe-add').onclick = () => {
+				const last = segs.length ? segs[segs.length - 1].p : start;
+				const p = { x: last.x, y: last.y + 400 };
+				segs.push({
+					c1: { x: last.x, y: last.y + 130 },
+					c2: { x: p.x, y: p.y - 130 },
+					p,
+					on: true,
+				});
+				build();
+			};
+
+			const svg = $('pe-svg');
+			svg.addEventListener('pointerdown', onDown);
+			svg.addEventListener('pointermove', onMove);
+			svg.addEventListener('pointerup', onUp);
+			svg.addEventListener('pointercancel', onUp);
+			svg.addEventListener('click', (e) => {
+				const i = e.target.dataset.seg;
+				if (i === undefined || moved) return;
+				segs[+i].on = !segs[+i].on;
+				sync();
+				emit();
+			});
+
+			show(!!localStorage.getItem('pe'));
+		};
+
+		init();
+		document.addEventListener('astro:page-load', init);
+	})();
+</script>
