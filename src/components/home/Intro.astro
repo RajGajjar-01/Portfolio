@@ -1,20 +1,18 @@
 ---
-// First-load intro: the name comes in letter by letter, then leaves the same way.
+
 import { site } from '../../data/site';
 
 const letters = [...site.name];
 ---
 
-{/* Runs before the panel paints, so there is no flash of the page underneath.
-    The window flag outlives router swaps but not a real load, so the intro is
-    tied to actually opening the site rather than to reaching this route. */}
+{}
 <script is:inline>
 	if (!window.__introPlayed) {
 		window.__introPlayed = true;
 		document.documentElement.dataset.intro = '';
 
-		// Cleared at the next navigation, well after every animation here has
-		// finished, so nothing recomputes its delay mid-flight.
+		
+		
 		document.addEventListener('astro:after-swap', () => {
 			delete document.documentElement.dataset.intro;
 		});
@@ -30,12 +28,12 @@ const letters = [...site.name];
 <style is:global>
 	:root {
 		--intro-step: 45ms;
-		/* Letters finish arriving, hold, then leave in the same order. */
+		
 		--intro-out-at: 900ms;
 		--intro-wipe-at: 1650ms;
 	}
 
-	/* Off unless the inline script opts this load in. */
+	
 	.intro {
 		display: none;
 	}
@@ -56,7 +54,7 @@ const letters = [...site.name];
 		font-weight: 500;
 		letter-spacing: 0.15em;
 		white-space: pre;
-		/* Reads against the intro's own dark panel, not the page background. */
+		
 		color: #939393;
 	}
 
@@ -69,7 +67,7 @@ const letters = [...site.name];
 				calc(var(--intro-out-at) + var(--i) * var(--intro-step)) forwards;
 	}
 
-	/* Page content waits for the panel to clear. */
+	
 	:root[data-intro] {
 		--reveal-offset: calc(var(--intro-wipe-at) + 260ms);
 	}
@@ -112,7 +110,7 @@ const letters = [...site.name];
 	}
 </style>
 
-{/* Drop the panel once it has wiped away, so it never sits over the page. */}
+{}
 <script is:inline>
 	document
 		.querySelector('.intro')

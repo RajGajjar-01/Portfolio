@@ -5,16 +5,15 @@ import { formatDate, isoDate, tagSlug, type Post } from '../../lib/content';
 
 interface Props {
 	post: Post;
-	/** The first card is above the fold, so it must not be lazy-loaded. */
+	
 	eager?: boolean;
 }
 
 const { post, eager = false } = Astro.props;
 const { title, description, pubDate, cover, coverAlt, tags, draft } = post.data;
-// SVG covers are vector, so skip the raster resize pipeline (fit=cover 400s on svg).
+
 const isSvgCover = cover?.format === 'svg';
 
-// Corner brackets are decorative UI chrome, not content — safe to hardcode.
 const corners = [
 	'top-0 left-0 -translate-x-1/2 -translate-y-1/2',
 	'top-0 right-0 translate-x-1/2 -translate-y-1/2',

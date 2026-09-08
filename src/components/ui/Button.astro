@@ -7,22 +7,16 @@ interface Props {
 
 const { href, variant = 'solid', class: className = '' } = Astro.props;
 
-// Treat anything that isn't a root-relative path or hash as off-site.
 const external = !href.startsWith('/') && !href.startsWith('#');
-// Mail is a call to action, not a trip off-site, so it points forward.
+
 const isMail = href.startsWith('mailto:');
 
 const base =
 	'group inline-flex items-center rounded-full px-5 py-2.5 text-md font-medium transition active:scale-[0.98]';
 
-// Collapsed to zero width until hover, so the arrow slides out of the button's
-// edge rather than fading in place. No `gap` on the base for the same reason —
-// the margin arrives with the arrow.
 const arrowBase =
 	'w-0 shrink-0 opacity-0 transition-all duration-200 group-hover:ml-2 group-hover:w-[1em] group-focus-visible:ml-2 group-focus-visible:w-[1em] group-focus-visible:opacity-100';
 
-// Solid and outline take the pointer-origin accent sweep (.btn-fill supplies the
-// hover colour); ghost is a bare text link with no box to fill.
 const variantClass = {
 	solid: 'btn-fill bg-fg text-bg',
 	outline: 'btn-fill border-border text-fg border bg-transparent hover:border-accent',
@@ -36,7 +30,7 @@ const variantClass = {
 	rel={external ? 'noopener noreferrer' : undefined}
 	class:list={[base, variantClass, className]}
 >
-	{/* Wrapped so it is an element child, which .btn-fill lifts above the sweep. */}
+	{}
 	<span><slot /></span>
 	{
 		external && (

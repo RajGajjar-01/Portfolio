@@ -15,7 +15,7 @@ export const getStaticPaths = (async () => {
 		params: { slug: post.id },
 		props: {
 			post,
-			// Precomputed here so the page itself does no querying.
+			
 			related: posts
 				.filter((p, j) => j !== i && p.data.tags.some((t) => post.data.tags.includes(t)))
 				.slice(0, 2),
@@ -26,10 +26,9 @@ export const getStaticPaths = (async () => {
 const { post, related } = Astro.props;
 const { title, description, pubDate, updatedDate, cover, coverAlt, tags } = post.data;
 const { Content } = await render(post);
-// SVG covers are vector, so skip the raster resize pipeline (fit=cover 400s on svg).
+
 const isSvgCover = cover?.format === 'svg';
 
-// Crawlers reject SVG social images, so a vector cover falls back to the default card.
 const shareImage = cover && !isSvgCover ? cover.src : undefined;
 const canonical = new URL(`/blog/${post.id}/`, Astro.site);
 ---

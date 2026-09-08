@@ -17,13 +17,11 @@ const projects = await getFeaturedProjects(3);
 <!-- Person and WebSite JSON-LD are emitted sitewide from Base.astro. -->
 <Page>
 	{
-		/* overflow-clip, not overflow-hidden: the trail box is wider and taller
-	    than the page, and clip keeps the sticky blocks in "How I work" working
-	    against the viewport instead of a new scroll container. */
+		
 	}
 	<div class="relative overflow-clip">
 		<FlightPath />
-		{/* Dev-only flight path editor; compiles out of production builds. */}
+		{}
 		{import.meta.env.DEV && <PathEditor />}
 
 		<Intro />

@@ -20,8 +20,7 @@ const {
 } = Astro.props;
 
 const pageTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.role}`;
-// Trailing slash kept: @astrojs/sitemap and @astrojs/rss both emit one, so
-// canonical, og:url, the sitemap and the feed all name the identical URL.
+
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image, Astro.site);
 ---
@@ -38,7 +37,7 @@ const ogImage = new URL(image, Astro.site);
 
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<link rel="icon" href="/favicon.ico" sizes="32x32" />
-		{/* Used when the site is added to an iOS home screen. */}
+		{}
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<link rel="sitemap" href="/sitemap-index.xml" />
 		<link
@@ -48,7 +47,7 @@ const ogImage = new URL(image, Astro.site);
 			href={new URL('rss.xml', Astro.site)}
 		/>
 
-		{/* og:site_name already carries the attribution, so the card title stays bare. */}
+		{}
 		<meta property="og:type" content={article ? 'article' : 'website'} />
 		<meta property="og:title" content={title ?? `${site.name} | ${site.role}`} />
 		<meta property="og:description" content={description} />
@@ -82,32 +81,51 @@ const ogImage = new URL(image, Astro.site);
 			)
 		}
 
-		{/* Entity anchor: every author/publisher slot on the site points back here. */}
+		{}
 		<JsonLd schema={personSchema()} />
 		<JsonLd schema={websiteSchema()} />
 		{schema.map((node) => <JsonLd schema={node} />)}
 
-		{/* Self-hosted and preloaded, so text paints in the right font immediately. */}
+		{}
 		<Font cssVariable="--font-jakarta" preload />
 
-		{/* Swaps the document instead of reloading it; pairs with the hover
-		    prefetch configured in astro.config.mjs. */}
+		{}
 		<ClientRouter />
 	</head>
 
 	<body>
 		<slot />
 
-		{/* CSS cannot know where the pointer is, so this sets the origin of the
-		    .btn-fill sweep. Delegated from the document so it survives router
-		    swaps, and inline so it stays out of the bundle. */}
+		{}
+		<div class="veil" aria-hidden="true" style="view-transition-name: veil"></div>
+
+		<script is:inline>
+			if (!window.__veilBound) {
+				window.__veilBound = true;
+				const root = document.documentElement;
+
+				
+				
+				
+				
+				document.addEventListener('astro:after-swap', () => {
+					root.dataset.veil = '';
+				});
+
+				document.addEventListener('animationend', (event) => {
+					if (event.animationName === 'veil-lift') delete root.dataset.veil;
+				});
+			}
+		</script>
+
+		{}
 		<script is:inline>
 			if (!window.__btnFillBound) {
 				window.__btnFillBound = true;
 
 				document.addEventListener('pointerover', (event) => {
 					const btn = event.target.closest?.('.btn-fill');
-					// Ignore moves between the label and the icon inside one button.
+					
 					if (!btn || btn.contains(event.relatedTarget)) return;
 
 					const rect = btn.getBoundingClientRect();

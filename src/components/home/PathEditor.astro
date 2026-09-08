@@ -1,17 +1,5 @@
 ---
-/**
- * Dev-only editor for the paper plane's route. Not part of the site: index.astro
- * renders it behind `import.meta.env.DEV`, and the script is `is:inline` so a
- * production build ships neither the markup nor a byte of JS.
- *
- * It draws on top of the real page, in the same 1440x5900 pixel box FlightPath
- * uses, so a curve dragged past a section is past that section for real. The
- * seed geometry is read out of the rendered FlightPath at load — there is no
- * second copy of the path here to fall out of date.
- *
- * Output is the two arrays, formatted for pasting straight over the `motion`
- * and `trail` literals in FlightPath.astro.
- */
+
 ---
 
 <div id="pe" hidden>
@@ -35,8 +23,7 @@
 <button id="pe-toggle" type="button" title="Edit flight path">&#9998;</button>
 
 <style>
-	/* The box spans the whole page, so it must not eat clicks meant for the
-	   site; the shapes inside opt back in individually. */
+	
 	#pe {
 		pointer-events: none;
 		position: absolute;
@@ -81,7 +68,7 @@
 			monospace;
 	}
 
-	/* Stops the browser turning a handle drag into a scroll or a selection. */
+	
 	#pe-svg {
 		touch-action: none;
 	}
@@ -131,8 +118,7 @@
 			seed = '',
 			els = null;
 
-		/* Only the M/C subset FlightPath is written in. Anything else would have
-		   to be taught to the parser and the serialiser together. */
+		
 		const parse = (d) => {
 			const t = d.match(/-?[\d.]+|[MC]/g) || [];
 			let i = 0,
@@ -141,8 +127,7 @@
 			while (i < t.length) {
 				const cmd = t[i++];
 				if (cmd === 'M') {
-					/* Only the first M matters here: a trail's later ones just
-					   re-anchor after a gap, which `walk` recomputes anyway. */
+					
 					const p = { x: +t[i++], y: +t[i++] };
 					if (!first) first = p;
 				} else if (cmd === 'C') {
@@ -167,9 +152,7 @@
 
 		const motionD = () => mStr(start) + segs.map(cStr).join('');
 
-		/* Same walk for the on-screen preview and the emitted array: a run of
-		   dropped segments becomes a gap, and the next kept one re-opens with an
-		   M at wherever the pen actually is. */
+		
 		const walk = (fn) => {
 			let pen = false,
 				prev = start;
@@ -202,10 +185,7 @@
 			for (const k in o) el.setAttribute(k, o[k]);
 		};
 
-		/* Presentation lives on the elements: they are built with innerHTML, so
-		   they never carry Astro's scope attribute and no scoped rule can reach
-		   them. pointer-events is off on the svg and back on per shape, so the
-		   overlay only swallows clicks that land on a handle. */
+		
 		const build = () => {
 			const hit = 'fill="none" stroke="transparent" stroke-width="14" pointer-events="stroke"';
 			const grab = 'pointer-events="all" style="cursor:move"';
@@ -237,10 +217,7 @@
 			emit();
 		};
 
-		/* Dragging only moves points, never adds or removes them, so it writes
-		   coordinates into the existing nodes. Rebuilding the markup here would
-		   destroy the element holding the pointer capture mid-gesture — which is
-		   what turned a drag into a runaway text selection. */
+		
 		const sync = () => {
 			const pts = points();
 			els.route.setAttribute('d', motionD());
@@ -256,9 +233,7 @@
 			pts.forEach((p, i) => attrs(els.anchors[i], { cx: p.x, cy: p.y }));
 		};
 
-		/* Seed from the rendered FlightPath: the continuous route off the CSS
-		   custom property it already sets, and which segments are in the dashed
-		   trail by matching the painted path's curves against it. */
+		
 		const load = () => {
 			const flight = document.querySelector('.flight');
 			if (!flight) return false;
@@ -274,8 +249,7 @@
 			return true;
 		};
 
-		/* Pointer position in the 1440x5900 user space, whatever the page is
-		   scrolled to or zoomed at. */
+		
 		const at = (e) => {
 			const svg = $('pe-svg');
 			const p = svg.createSVGPoint();
@@ -305,7 +279,7 @@
 			} else return;
 			moved = false;
 			e.preventDefault();
-			/* Capture on the svg, the one node a rebuild cannot take away. */
+			
 			$('pe-svg').setPointerCapture(e.pointerId);
 			document.body.style.userSelect = 'none';
 		};
@@ -319,8 +293,7 @@
 					dy = y - drag.pt.y;
 				drag.pt.x = x;
 				drag.pt.y = y;
-				/* An anchor carries the two handles that meet at it, so moving a
-				   point translates the curve instead of reshaping it. */
+				
 				const before = segs[drag.i - 1],
 					after = segs[drag.i];
 				if (before) {

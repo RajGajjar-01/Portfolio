@@ -1,37 +1,11 @@
 ---
-/**
- * Decorative paper plane that rides a dashed trail down the home page as you
- * scroll. Zero JS: the trail is revealed by an SVG mask and the plane by
- * `offset-distance`, both driven by a scroll timeline in motion.css.
- *
- * The overlay is a fixed 1:1 pixel box on purpose — one SVG user unit is one
- * CSS px — so the same geometry can drive the mask stroke and the plane's CSS
- * `offset-path` without the two drifting apart at any viewport width. It is
- * centred and clipped rather than scaled.
- */
+
 const W = 1440;
 const H = 5900;
 
-/* Scroll positions, in px, that bracket the flight.
- *
- * START: nothing is drawn until the hero has been read; the plane fades in at
- * the head of the path rather than sitting parked there waiting to be scrolled
- * to (the opacity ramp in flight-fly does that).
- *
- * END: the plane lands on the rule above the footer (Contact's top border,
- * document y 5796 at the time of writing — the path's last point is placed
- * to match).
- *
- * ponytail: both are hand-measured against the current home page rather than
- * derived. One CSS animation gets one timeline, so anchoring the start to the
- * hero and the end to a rule 6000px later cannot be expressed with view()
- * ranges. If the page grows, remeasure the rule and move END and the path's
- * final y together.
- */
 const START = 350;
 const END = 5380;
 
-/* The plane's route: one continuous curve, never painted. */
 const motion = [
 	'M209.5 490.5',
 	'C19.3 658.8 9.4 883.7 58.2 1005.4',
@@ -48,8 +22,6 @@ const motion = [
 	'C1279.6 4741.2 1403.7 5476.2 711.6 5804.6',
 ].join('');
 
-/* Same route with two stretches lifted out, so the trail is not drawn where it
-   would cut across the copy — the plane glides those gaps unaccompanied. */
 const trail = [
 	'M209.5 490.5',
 	'C19.3 658.8 9.4 883.7 58.2 1005.4',
@@ -74,9 +46,7 @@ const trail = [
 >
 	<svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none">
 		{
-			/* Wipes along the continuous route, so the dashes appear as the plane
-		    passes and the gaps stay empty. pathLength=1 makes the dash offset a
-		    plain 1 → 0 progress value. */
+			
 		}
 		<mask id="flight-reveal" maskUnits="userSpaceOnUse" x="0" y="0" width={W} height={H}>
 			<path class="flight-draw" d={motion} pathLength="1" stroke="#fff" stroke-width="24"></path>
@@ -91,8 +61,7 @@ const trail = [
 	</svg>
 
 	{
-		/* The sprite is drawn nose down-right, so offset-rotate in motion.css
-	    takes that 33deg back out before aligning it with the path. */
+		
 	}
 	<img class="flight-plane" src="/plane.svg" width="46" height="46" alt="" />
 </div>

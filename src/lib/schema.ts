@@ -1,18 +1,14 @@
-// JSON-LD builders. Everything hangs off one Person node (`#person`) so search
-// engines and LLMs resolve a single entity instead of five disconnected copies.
+
 
 import { site, socials } from '../data/site';
 import { experience, skills } from '../data/resume';
 import type { Post, Project } from './content';
 
-// Trailing slashes match what @astrojs/sitemap emits, so every URL in the
-// graph is byte-identical to the canonical.
 const abs = (path: string) => new URL(path, site.url).href;
 
 export const PERSON_ID = `${site.url}/#person`;
 export const WEBSITE_ID = `${site.url}/#website`;
 
-/** Reference to the sitewide Person node, for author/publisher slots. */
 const personRef = { '@id': PERSON_ID };
 
 export function personSchema() {
@@ -28,8 +24,8 @@ export function personSchema() {
 		url: site.url,
 		image: abs('/og-default.png'),
 		email: `mailto:${site.email}`,
-		// sameAs is the disambiguation signal: it ties this page to profiles the
-		// engines already trust. mailto: is not a profile, so it is filtered out.
+		
+		
 		sameAs: socials.filter((s) => s.href.startsWith('http')).map((s) => s.href),
 		worksFor: { '@type': 'Organization', name: current.org },
 		homeLocation: {
@@ -82,7 +78,7 @@ export function projectSchema(project: Project, url: URL, image?: string) {
 		description: project.data.summary,
 		url: url.href,
 		...(project.data.repo && { codeRepository: project.data.repo }),
-		// `year` is the only date the collection carries.
+		
 		dateCreated: String(project.data.year),
 		author: personRef,
 		keywords: project.data.tags.join(', '),
@@ -91,7 +87,6 @@ export function projectSchema(project: Project, url: URL, image?: string) {
 	};
 }
 
-/** Home → section → current page. The last crumb intentionally has no `item`. */
 export function breadcrumbSchema(trail: { name: string; path?: string }[]) {
 	return {
 		'@context': 'https://schema.org',

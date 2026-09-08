@@ -3,9 +3,9 @@ import Container from './Container.astro';
 
 interface Props {
 	title?: string;
-	/** Small label rendered above the title. */
+	
 	eyebrow?: string;
-	/** Optional link rendered opposite the title, e.g. "All work". */
+	
 	action?: { label: string; href: string };
 	id?: string;
 	class?: string;
@@ -21,7 +21,7 @@ const { title, eyebrow, action, id, class: className = '' } = Astro.props;
 				<header class="reveal mb-12 flex flex-wrap items-end justify-between gap-4">
 					<div>
 						{eyebrow && (
-							<p class="text-muted mb-2 font-mono text-xs tracking-widest uppercase">{eyebrow}</p>
+							<p class="eyebrow mb-2">{eyebrow}</p>
 						)}
 						{title && <h2 class="text-3xl sm:text-4xl">{title}</h2>}
 					</div>
