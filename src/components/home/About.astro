@@ -4,56 +4,28 @@ import Section from '../ui/Section.astro';
 const paragraphs = [
 	'I am an AI engineer at E2M Solutions in Ahmedabad, where I take AI features for digital agency clients from architecture through production. Most of that work is retrieval, tool-calling agents, and the FastAPI services holding them together.',
 	'Before this I built AutoLead, a RAG assistant on LangChain and LangGraph that books calls, test drives, and service appointments from plain language, running semantic search over pgvector. More recently, a rich-text editor with automated document generation, e-signatures, and audit logging that cut turnaround on a core client workflow by about 60%.',
-	'I write here about the layers most tutorials skip: how TLS actually establishes trust, why a retrieval pipeline returns the wrong chunk, what a system does when it fails. Working out the explanation is usually how I learn it properly.',
 ];
 
-const stack = [
-	'Python',
-	'FastAPI',
-	'Django',
-	'LangChain',
-	'LangGraph',
-	'RAG',
-	'PostgreSQL',
-	'pgvector',
-	'Redis',
-	'React',
-	'Docker',
-	'Linux',
-];
+const total = paragraphs.reduce((n, text) => n + text.split(' ').length, 0);
+let index = 0;
 ---
 
-<Section id="about" title="Background">
-	<div class="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
-		<div class="reveal-words space-y-5 text-lg leading-relaxed">
-			{
-				(() => {
-					const counts = paragraphs.map((text) => text.split(' ').length);
-					const total = counts.reduce((a, b) => a + b, 0);
-					let index = 0;
-					return paragraphs.map((text) => (
-						<p>
-							{text.split(' ').map((word) => {
-								const i = index++;
-								return (
-									<Fragment>
-										<span class="reveal-word" style={`--i:${i};--n:${total}`}>
-											{word}
-										</span>{' '}
-									</Fragment>
-								);
-							})}
-						</p>
-					));
-				})()
-			}
-		</div>
-
-		<aside class="reveal">
-			<h3 class="eyebrow mb-4">Working with</h3>
-			<ul class="flex flex-wrap gap-x-4 gap-y-2">
-				{stack.map((item) => <li class="text-muted text-sm">{item}</li>)}
-			</ul>
-		</aside>
+<Section id="about">
+	<div
+		class="reveal-words mx-auto max-w-4xl space-y-8 text-center text-2xl leading-relaxed text-balance sm:text-3xl sm:leading-relaxed"
+	>
+		{
+			paragraphs.map((text) => (
+				<p>
+					{text.split(' ').map((word) => (
+						<Fragment>
+							<span class="reveal-word" style={`--i:${index++};--n:${total}`}>
+								{word}
+							</span>{' '}
+						</Fragment>
+					))}
+				</p>
+			))
+		}
 	</div>
 </Section>

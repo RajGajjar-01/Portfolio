@@ -19,13 +19,15 @@ const projects = await getFeaturedProjects(3);
 	{
 		
 	}
-	<div class="relative overflow-clip">
+	<div class="relative overflow-x-clip">
 		<FlightPath />
 		{}
 		{import.meta.env.DEV && <PathEditor />}
 
 		<Intro />
 		<Hero />
+
+		<About />
 
 		{
 			projects.length > 0 && (
@@ -42,8 +44,6 @@ const projects = await getFeaturedProjects(3);
 				</Section>
 			)
 		}
-
-		<About />
 
 		<HowIWork />
 

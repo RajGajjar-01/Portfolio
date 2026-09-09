@@ -237,6 +237,13 @@
 		const load = () => {
 			const flight = document.querySelector('.flight');
 			if (!flight) return false;
+
+
+			const w = parseFloat(flight.style.width) || 1440;
+			const h = parseFloat(flight.style.height) || 5900;
+			$('pe').style.width = w + 'px';
+			$('pe').style.height = h + 'px';
+			attrs($('pe-svg'), { viewBox: `0 0 ${w} ${h}`, width: w, height: h });
 			const m = /path\(['"](.+?)['"]\)/.exec(flight.style.getPropertyValue('--flight-d'));
 			if (!m) return false;
 			seed = m[1];

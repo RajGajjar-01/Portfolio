@@ -44,8 +44,11 @@
 			display: inline-block;
 			animation: word-in linear both;
 			animation-timeline: --words;
-			animation-range: cover calc(var(--i) / var(--n) * 45%) cover
-				calc(35% + var(--i) / var(--n) * 45%);
+			/* Scrubbed stagger. The slice is kept short relative to the spread so
+			   only a handful of words are mid-fade at once — a wider slice
+			   overlaps enough neighbours to read as a line, not a word. */
+			animation-range: entry calc(var(--i) / var(--n) * 92%) entry
+				calc(8% + var(--i) / var(--n) * 92%);
 		}
 
 		.how-step {
@@ -317,10 +320,12 @@
 
 @keyframes word-in {
 	from {
-		opacity: 0.12;
+		opacity: 0.1;
+		filter: blur(4px);
 	}
 	to {
 		opacity: 1;
+		filter: blur(0);
 	}
 }
 
