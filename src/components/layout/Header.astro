@@ -6,21 +6,17 @@ import { site, nav } from '../../data/site';
 const path = Astro.url.pathname;
 const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 
-// Shown once the header condenses, in place of the full name.
 const initials = site.name
 	.split(' ')
 	.map((word) => word[0])
 	.join(' ');
 ---
 
-{/* Named so it gets its own view-transition group and stays put while the
-    page underneath swaps; see ::view-transition-group(navbar) in motion.css. */}
+{}
 <header class="sticky top-0 z-50 py-3 print:hidden" style="view-transition-name: navbar">
 	<Container class="flex items-center gap-3">
-		{/* Bare across the top of the page; condenses into a glass pill on scroll.
-		    The classes here are the fallback when scroll timelines are unavailable. */}
-		{/* Three tracks so the nav sits dead centre regardless of how wide the
-		    wordmark and the actions either side of it happen to be. */}
+		{}
+		{}
 		<div
 			class="header-shell border-border bg-bg mx-auto grid w-full grid-cols-[1fr_auto_1fr] items-center rounded-full border px-4 py-2"
 		>
@@ -29,8 +25,7 @@ const initials = site.name
 				class="hover:text-accent font-display grid shrink-0 justify-self-start text-base font-semibold transition-colors"
 			>
 				<span class="header-logo-full [grid-area:1/1]">{site.name}</span>
-				{/* Hidden unless the scroll animation fades it in, so the fallback
-				    (no scroll timeline, or reduced motion) shows the name alone. */}
+				{}
 				<span
 					class="header-logo-short [grid-area:1/1] tracking-[0.2em] opacity-0"
 					aria-hidden="true"
@@ -43,8 +38,7 @@ const initials = site.name
 				<NavTabs />
 			</nav>
 
-			{/* col-start-3 explicitly: the nav is display:none on mobile, so it is not a
-			    grid item and this would otherwise fall into the centre track. */}
+			{}
 			<div class="col-start-3 flex items-center justify-self-end">
 				<a
 					href={`mailto:${site.email}`}
@@ -65,7 +59,7 @@ const initials = site.name
 					</svg>
 				</a>
 
-				{/* Mobile hamburger — inside the pill, only visible on small screens */}
+				{}
 				<button
 					type="button"
 					popovertarget="mobile-menu"

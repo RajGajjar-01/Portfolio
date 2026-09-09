@@ -1,7 +1,5 @@
 ---
-// Wheel-inertia smooth scrolling. The reading progress bar is pure CSS
-// (scroll-timeline in motion.css) — Lenis drives the real window scroll, so
-// that keeps working without any JS help here.
+
 ---
 
 <script>
@@ -16,7 +14,7 @@
 			lenis?.destroy();
 			lenis = null;
 		} else if (!lenis) {
-			// Touch already has native inertia — only smooth the wheel.
+			
 			lenis = new Lenis({ lerp: 0.1, syncTouch: false, autoRaf: true });
 		}
 	}
@@ -24,7 +22,7 @@
 	sync();
 	reduced.addEventListener('change', sync);
 
-	// This module is not re-executed on soft navigation, so Lenis keeps the
-	// outgoing page's scroll offset unless it is told to snap back.
+	
+	
 	document.addEventListener('astro:after-swap', () => lenis?.scrollTo(0, { immediate: true }));
 </script>

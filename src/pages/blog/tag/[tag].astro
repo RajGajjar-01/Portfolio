@@ -5,7 +5,6 @@ import Container from '../../../components/ui/Container.astro';
 import PostCard from '../../../components/ui/PostCard.astro';
 import { getPosts, getPostTags, tagSlug } from '../../../lib/content';
 
-// Tag archives are statically pre-rendered at build time.
 export const getStaticPaths = (async () => {
 	const [posts, tags] = await Promise.all([getPosts(), getPostTags()]);
 
@@ -25,7 +24,7 @@ const { tag, posts } = Astro.props;
 	title={`Posts tagged “${tag}”`}
 	description={`Writing tagged ${tag}: ${posts.length} post${posts.length === 1 ? '' : 's'}.`}
 >
-	<Container class="py-16 sm:py-24">
+	<Container class="section-y">
 		<header class="mb-14">
 			<a
 				href="/blog"
@@ -35,8 +34,8 @@ const { tag, posts } = Astro.props;
 				All posts
 			</a>
 
-			<p class="text-muted mb-3 font-mono text-xs tracking-widest uppercase">Tag</p>
-			<h1 class="text-4xl sm:text-6xl">{tag}</h1>
+			<p class="eyebrow mb-3">Tag</p>
+			<h1 class="display-title">{tag}</h1>
 			<p class="text-muted mt-4 text-sm">
 				{posts.length} post{posts.length === 1 ? '' : 's'}
 			</p>

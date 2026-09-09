@@ -1,7 +1,6 @@
 @import 'tailwindcss';
 @import './motion.css';
 
-/* The site is dark-only — there is no theme switching. */
 :root {
 	--bg: #141414;
 	--surface: oklch(21% 0.013 265);
@@ -11,14 +10,11 @@
 	--accent: #ff7557;
 	--accent-fg: #141414;
 	--secondary: #7c8cff;
-	/* Footer wordmark: sits just above the page background so the name reads as
-	   a watermark rather than as content. */
 	--wordmark: #242424;
 
 	color-scheme: dark;
 }
 
-/* `inline` emits the CSS variables directly into the generated utilities. */
 @theme inline {
 	--color-bg: var(--bg);
 	--color-surface: var(--surface);
@@ -31,7 +27,6 @@
 	--font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 	--font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
-	/* Reading measure for prose. */
 	--container-prose: 68ch;
 }
 
@@ -46,7 +41,6 @@
 
 	html {
 		scroll-behavior: smooth;
-		/* Offset anchor targets so the sticky header doesn't cover them. */
 		scroll-padding-top: 6rem;
 		-webkit-text-size-adjust: 100%;
 	}
@@ -57,8 +51,6 @@
 		}
 	}
 
-	/* Lenis animates the real window scroll, so native smooth scroll fights it
-	   (lenis.css no longer ships this rule itself). Lenis sets .lenis. */
 	html.lenis {
 		scroll-behavior: auto;
 	}
@@ -87,7 +79,6 @@
 		text-wrap: pretty;
 	}
 
-	/* Visible, consistent focus ring for keyboard users only. */
 	:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 3px;
@@ -100,10 +91,19 @@
 	}
 }
 
+@utility eyebrow {
+	@apply text-muted text-xs tracking-widest uppercase;
+}
+
+@utility display-title {
+	@apply text-4xl sm:text-6xl;
+}
+
+@utility section-y {
+	@apply py-16 sm:py-24;
+}
+
 @layer components {
-	/* Nav labels roll letter by letter: each letter carries a copy of itself one
-	   line below, and the pair slides up as one. Line-height sets the clip box,
-	   so it has to clear descenders or the copy peeks out below at rest. */
 	.tab-roll {
 		display: inline-flex;
 		overflow: hidden;
@@ -122,14 +122,9 @@
 		top: 100%;
 	}
 
-	/* Accent fill that grows from wherever the pointer entered. The origin is
-	   set as --x/--y by the delegated handler in Base.astro, since CSS has no
-	   way to know where the pointer is. */
 	.btn-fill {
 		position: relative;
 		overflow: hidden;
-		/* Own stacking context, so the layers below sort against each other
-		   and not against the surrounding page. */
 		isolation: isolate;
 		transition: color 0.35s ease;
 	}
@@ -138,8 +133,6 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		/* Both this and the label are positioned, so without explicit layers a
-		   pseudo-element paints last and covers the text. */
 		z-index: 0;
 		background: var(--accent);
 		clip-path: circle(0% at var(--x, 50%) var(--y, 50%));
@@ -147,7 +140,6 @@
 	}
 
 	.btn-fill:hover::after {
-		/* Past 100% so the circle still covers the far corners from any origin. */
 		clip-path: circle(150% at var(--x, 50%) var(--y, 50%));
 	}
 
@@ -167,7 +159,6 @@
 		}
 	}
 
-	/* Skip link — visible only once focused. */
 	.skip-link {
 		position: fixed;
 		top: 0.5rem;
@@ -185,15 +176,12 @@
 		translate: 0 0;
 	}
 
-	/* Touch-only devices have no tab key to reach it with, but do hand out
-	   :focus-visible on tap — which surfaced it for no reason. */
 	@media (pointer: coarse) and (hover: none) {
 		.skip-link {
 			display: none;
 		}
 	}
 
-	/* Typography styles for rendered Markdown prose. */
 	.prose {
 		max-width: var(--container-prose);
 		line-height: 1.75;
@@ -273,7 +261,6 @@
 		border: 1px solid var(--border);
 		border-radius: 0.5rem;
 		overflow-x: auto;
-		/* overflow-x:auto alone computes overflow-y to auto: stray bar. */
 		overflow-y: hidden;
 		font-size: 0.875rem;
 		line-height: 1.6;
