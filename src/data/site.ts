@@ -8,7 +8,7 @@ export const site = {
 	description:
 		'AI engineer in Ahmedabad building LLM-backed systems with Python, FastAPI, and LangGraph.',
 	
-	url: 'https://portfolio.irajgajjar-2004.workers.dev',
+	url: 'https://rajgajjar.me',
 	locale: 'en',
 	email: 'irajgajjar.2004@gmail.com',
 	
