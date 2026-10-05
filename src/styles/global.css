@@ -11,6 +11,9 @@
 	--accent-fg: #141414;
 	--secondary: #7c8cff;
 	--wordmark: #242424;
+	/* Intro name and page-transition labels share these. */
+	--label-size: clamp(1rem, 1.92vw, 1.6rem);
+	--label-color: #939393;
 
 	color-scheme: dark;
 }

@@ -4,6 +4,7 @@ import { ClientRouter } from 'astro:transitions';
 import { site } from '../data/site';
 import type { SeoProps } from '../lib/seo';
 import JsonLd from '../components/seo/JsonLd.astro';
+import ClipTransition from '../components/layout/ClipTransition.astro';
 import { personSchema, websiteSchema } from '../lib/schema';
 import '../styles/global.css';
 
@@ -94,29 +95,12 @@ const ogImage = new URL(image, Astro.site);
 	</head>
 
 	<body>
-		<slot />
+		<div class="clip-page">
+			<slot />
+		</div>
 
 		{}
-		<div class="veil" aria-hidden="true" style="view-transition-name: veil"></div>
-
-		<script is:inline>
-			if (!window.__veilBound) {
-				window.__veilBound = true;
-				const root = document.documentElement;
-
-				
-				
-				
-				
-				document.addEventListener('astro:after-swap', () => {
-					root.dataset.veil = '';
-				});
-
-				document.addEventListener('animationend', (event) => {
-					if (event.animationName === 'veil-lift') delete root.dataset.veil;
-				});
-			}
-		</script>
+		<ClipTransition />
 
 		{}
 		<script is:inline>

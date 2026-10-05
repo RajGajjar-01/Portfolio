@@ -146,24 +146,17 @@
 	:root:has(.scroll-progress)::-webkit-scrollbar {
 		display: none;
 	}
+}
 
-	::view-transition-old(root) {
-		animation: 1000ms cubic-bezier(0.75, 0, 0.1, 1) both page-out;
-	}
+/* The clip transition's cover hides the swap, so skip the browser's
+   crossfade: it would fade a frozen snapshot of the covered page over the
+   live reveal. */
+::view-transition-old(root) {
+	display: none;
+}
 
-	::view-transition-new(root) {
-		animation: 1000ms cubic-bezier(0.75, 0, 0.1, 1) both page-in;
-	}
-
-	::view-transition-group(navbar) {
-		animation-duration: 300ms;
-		z-index: 100;
-	}
-
-	::view-transition-group(veil) {
-		animation: none;
-		z-index: 200;
-	}
+::view-transition-new(root) {
+	animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -255,28 +248,6 @@
 	85%,
 	100% {
 		opacity: 1;
-	}
-}
-
-@keyframes page-out {
-	from {
-		transform: translateY(0%) scale(1);
-		opacity: 1;
-	}
-	to {
-		transform: translateY(-25%) scale(1.5);
-		opacity: 0;
-	}
-}
-
-@keyframes page-in {
-	from {
-		transform: translateY(40%);
-		clip-path: polygon(35% 50%, 65% 50%, 65% 50%, 35% 50%);
-	}
-	to {
-		transform: translateY(0%);
-		clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
 	}
 }
 
@@ -401,28 +372,3 @@
 	}
 }
 
-.veil {
-	position: fixed;
-	inset: 0;
-	z-index: 90;
-	background-color: #202020;
-	pointer-events: none;
-	visibility: hidden;
-}
-
-:root[data-veil] .veil {
-	visibility: visible;
-	animation: veil-lift 880ms cubic-bezier(0.76, 0, 0.24, 1) 550ms both;
-}
-
-@keyframes veil-lift {
-	to {
-		translate: 0 -100%;
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.veil {
-		display: none;
-	}
-}

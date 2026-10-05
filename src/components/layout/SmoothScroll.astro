@@ -17,6 +17,8 @@
 			
 			lenis = new Lenis({ lerp: 0.1, syncTouch: false, autoRaf: true });
 		}
+		// The page transition stops/starts scrolling through this.
+		(window as unknown as { __lenis: Lenis | null }).__lenis = lenis;
 	}
 
 	sync();

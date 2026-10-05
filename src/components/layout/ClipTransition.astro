@@ -1,0 +1,270 @@
+---
+// Port of Atelier's Clip Transition. Cover: the page clips to a card and
+// shrinks over a dark backdrop while a colored panel sweeps up inside it.
+// Reveal (after the swap): that panel and the backdrop sweep up off the
+// new page. Shrinks the `.clip-page` wrapper in Base.astro. The card shows
+// the destination's name in the intro's style.
+import { nav, site } from '../../data/site';
+
+const labels = [...nav.map(({ label, href }) => [href, label]), ['/', site.name]];
+---
+
+<div
+	class="clip-overlay"
+	aria-hidden="true"
+	transition:persist="clip"
+	data-labels={JSON.stringify(labels)}
+>
+	<div class="clip-backdrop"></div>
+	<div class="clip-band"></div>
+</div>
+
+<script is:inline>
+	if (!window.__clipBound) {
+		window.__clipBound = true;
+
+		const COVER = '#202020';
+		const CLIP = '#121212';
+		const CLIP_X = 20;
+		const CLIP_Y = 10;
+		const SCALE = 0.8;
+		const DURATION = 1300;
+		const CLIP_EASE = 'cubic-bezier(0.7, 0.02, 0.12, 1)';
+		const SWEEP_EASE = 'cubic-bezier(0.833, 0.04, 0.14, 1)';
+		const REDUCED_DURATION = 150;
+
+		// The original's timings are written against a 1.8s base.
+		const ms = (base) => base * (DURATION / 1800);
+		// Where the clipped, scaled card lands in the viewport.
+		const viewX = 50 - SCALE * (50 - CLIP_X);
+		const viewY = 50 - SCALE * (50 - CLIP_Y);
+		const bandClip = `inset(${viewY}% ${viewX}%)`;
+		const bandSwept = `inset(${viewY}% ${viewX}% ${100 - viewY}% ${viewX}%)`;
+
+		const root = document.documentElement;
+		const $ = (selector) => document.querySelector(selector);
+		const play = (el, keyframes, duration, easing, delay = 0) =>
+			el.animate(keyframes, { duration, easing, delay, fill: 'forwards' }).finished;
+
+		const LABELS = JSON.parse($('.clip-overlay').dataset.labels);
+
+		// Longest matching prefix wins, so /blog/post reads "Writing".
+		const labelFor = (url) => {
+			const hit = LABELS
+				.filter(([href]) => url.pathname === href || url.pathname.startsWith(`${href}/`))
+				.sort((a, b) => b[0].length - a[0].length)[0];
+			return hit ? hit[1] : LABELS.find(([href]) => href === '/')[1];
+		};
+
+		// Letters as spans so they can rise in one by one, like the intro.
+		const makeLabel = (text, scale) => {
+			const el = document.createElement('span');
+			el.className = 'clip-label';
+			el.style.scale = scale;
+			for (const char of text) {
+				const letter = document.createElement('span');
+				letter.textContent = char;
+				el.append(letter);
+			}
+			return el;
+		};
+
+		let state = 'idle';
+		let label = '';
+		// The running cover, and the label element it shows.
+		let covering = null;
+		let coverText = null;
+
+		const reset = () => {
+			const overlay = $('.clip-overlay');
+			for (const el of overlay.children) {
+				el.getAnimations().forEach((a) => a.cancel());
+				el.style.visibility = '';
+				el.style.clipPath = '';
+				el.replaceChildren();
+			}
+			overlay.style.visibility = 'hidden';
+			state = 'idle';
+		};
+
+		// A click during a running cover retargets it instead of restarting:
+		// restarting would snap the half-shrunk page back to full size.
+		const coverIn = (to) => {
+			label = labelFor(to);
+			if (covering) {
+				const next = makeLabel(label, coverText.style.scale);
+				coverText.replaceWith(next);
+				coverText = next;
+				return covering;
+			}
+			covering = runCover();
+			return covering;
+		};
+
+		const runCover = async () => {
+			const overlay = $('.clip-overlay');
+			const backdrop = $('.clip-backdrop');
+			const band = $('.clip-band');
+			reset();
+			overlay.style.visibility = 'visible';
+
+			if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+				overlay.style.zIndex = '90';
+				backdrop.style.visibility = 'hidden';
+				band.style.clipPath = 'none';
+				coverText = makeLabel(label, SCALE);
+				band.append(coverText);
+				await play(band, { opacity: [0, 1] }, REDUCED_DURATION, 'linear');
+				state = 'reduced';
+				return;
+			}
+
+			// Freeze scrolling: the clip below is measured from this scroll position.
+			window.__lenis?.stop();
+			root.style.touchAction = 'none';
+
+			const page = $('.clip-page');
+			const y = scrollY;
+			const vh = innerHeight;
+			const below = page.offsetHeight - y - vh;
+			// Clip relative to the viewport, expressed in the page's own box.
+			const inset = (t, x, b) =>
+				`inset(${y + (t * vh) / 100}px ${x}% ${below + (b * vh) / 100}px)`;
+
+			overlay.style.zIndex = '0';
+			backdrop.style.visibility = 'visible';
+			band.style.visibility = 'hidden';
+			Object.assign(page.style, {
+				position: 'relative',
+				zIndex: '1',
+				isolation: 'isolate',
+				backgroundColor: 'var(--bg)',
+				transformOrigin: `50% ${y + vh / 2}px`,
+			});
+
+			const cover = document.createElement('div');
+			Object.assign(cover.style, {
+				position: 'absolute',
+				insetInline: '0',
+				top: `${y}px`,
+				height: `${vh}px`,
+				zIndex: '60',
+				pointerEvents: 'none',
+				backgroundColor: COVER,
+				transform: 'translateY(100%)',
+			});
+			// Centered on the card: the cover rests CLIP_Y% down, and the card
+			// spans the middle (100 - 2 * CLIP_Y)% of the viewport.
+			const slot = document.createElement('div');
+			Object.assign(slot.style, {
+				display: 'grid',
+				placeItems: 'center',
+				height: `${100 - 2 * CLIP_Y}%`,
+			});
+			const text = makeLabel(label, 1);
+			coverText = text;
+			slot.append(text);
+			cover.append(slot);
+			page.append(cover);
+
+			// Letters rise in once the cover has mostly arrived.
+			const letters = [...text.children].map((letter, i) =>
+				letter
+					.animate(
+						{ opacity: [0, 1], translate: ['0 0.6em', '0 0'] },
+						{ duration: 480, delay: ms(700) + i * 45, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'both' },
+					)
+					.finished,
+			);
+
+			await Promise.all([
+				play(page, { clipPath: [inset(0, 0, 0), inset(CLIP_Y, CLIP_X, CLIP_Y)] }, ms(1500), CLIP_EASE),
+				play(page, { transform: ['scale(1)', `scale(${SCALE})`] }, ms(1800), CLIP_EASE),
+				play(cover, { transform: ['translateY(100%)', `translateY(${CLIP_Y}%)`] }, ms(1400), SWEEP_EASE, ms(350)),
+				...letters,
+			]);
+			state = 'covered';
+		};
+
+		// Cover while the next page fetches; the swap waits for both.
+		document.addEventListener('astro:before-preparation', (event) => {
+			const load = event.loader;
+			event.loader = () => Promise.all([coverIn(event.to), load()]);
+		});
+
+		// Same frame as the swap: stand the overlay in for the old page's card.
+		document.addEventListener('astro:after-swap', () => {
+			root.style.touchAction = '';
+			// SmoothScroll's own after-swap handler then scrolls to the top.
+			window.__lenis?.start();
+			covering = null;
+			coverText = null;
+			if (state !== 'covered') return;
+
+			const backdrop = $('.clip-backdrop');
+			const band = $('.clip-band');
+			$('.clip-overlay').style.zIndex = '90';
+			backdrop.style.visibility = 'visible';
+			band.style.visibility = 'visible';
+			band.style.clipPath = bandClip;
+			// Matches the old page's label, which was scaled down with the card.
+			band.append(makeLabel(label, SCALE));
+		});
+
+		document.addEventListener('astro:page-load', async () => {
+			if (state !== 'reduced' && state !== 'covered') return;
+			const reveal =
+				state === 'reduced'
+					? [play($('.clip-band'), { opacity: [1, 0] }, REDUCED_DURATION, 'linear')]
+					: [
+							play($('.clip-band'), { clipPath: [bandClip, bandSwept] }, ms(1000), SWEEP_EASE),
+							play($('.clip-backdrop'), { clipPath: ['inset(0% 0% 0%)', 'inset(0% 0% 100% 0%)'] }, ms(1300), SWEEP_EASE, ms(100)),
+						];
+			state = 'out';
+			try {
+				await Promise.all(reveal);
+				reset();
+			} catch {
+				// A new navigation cancelled the reveal and owns the overlay now.
+			}
+		});
+
+		$('.clip-backdrop').style.backgroundColor = CLIP;
+		$('.clip-band').style.backgroundColor = COVER;
+	}
+</script>
+
+<style is:global>
+	.clip-overlay {
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		visibility: hidden;
+	}
+
+	.clip-backdrop,
+	.clip-band {
+		position: absolute;
+		inset: 0;
+	}
+
+	.clip-band {
+		display: grid;
+		place-items: center;
+	}
+
+	/* Matches the intro's name on first load. The card scales the label by
+	   0.8 (SCALE), so it's set 1/0.8 larger to land on the shared size. */
+	.clip-label {
+		display: flex;
+		font-size: calc(var(--label-size) / 0.8);
+		font-weight: 500;
+		letter-spacing: 0.15em;
+		white-space: pre;
+		color: var(--label-color);
+	}
+
+	.clip-label > span {
+		display: inline-block;
+	}
+</style>
