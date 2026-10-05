@@ -6,24 +6,25 @@ const paragraphs = [
 	'Before this I built AutoLead, a RAG assistant on LangChain and LangGraph that books calls, test drives, and service appointments from plain language, running semantic search over pgvector. More recently, a rich-text editor with automated document generation, e-signatures, and audit logging that cut turnaround on a core client workflow by about 60%.',
 ];
 
-const total = paragraphs.reduce((n, text) => n + text.split(' ').length, 0);
-let index = 0;
+// One sweep across all paragraphs: each takes a slice of the shared
+// timeline sized by its length, so the next starts where the last ends.
+const total = paragraphs.reduce((n, text) => n + text.length, 0);
+let done = 0;
+const slices = paragraphs.map((text) => {
+	const from = done / total;
+	done += text.length;
+	return { text, from, to: done / total };
+});
 ---
 
 <Section id="about">
 	<div
-		class="reveal-words mx-auto max-w-4xl space-y-8 text-center text-2xl leading-relaxed text-balance sm:text-3xl sm:leading-relaxed"
+		class="reveal-text mx-auto max-w-4xl space-y-8 text-center text-2xl leading-relaxed text-balance sm:text-3xl sm:leading-relaxed"
 	>
 		{
-			paragraphs.map((text) => (
+			slices.map(({ text, from, to }) => (
 				<p>
-					{text.split(' ').map((word) => (
-						<Fragment>
-							<span class="reveal-word" style={`--i:${index++};--n:${total}`}>
-								{word}
-							</span>{' '}
-						</Fragment>
-					))}
+					<span style={`--from:${from};--to:${to}`}>{text}</span>
 				</p>
 			))
 		}

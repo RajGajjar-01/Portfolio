@@ -36,19 +36,28 @@
 			--reveal-step: 270ms;
 		}
 
-		.reveal-words {
-			view-timeline-name: --words;
+		.reveal-text {
+			view-timeline-name: --text;
 		}
 
-		.reveal-word {
-			display: inline-block;
-			animation: word-in linear both;
-			animation-timeline: --words;
-			/* Scrubbed stagger. The slice is kept short relative to the spread so
-			   only a handful of words are mid-fade at once — a wider slice
-			   overlaps enough neighbours to read as a line, not a word. */
-			animation-range: entry calc(var(--i) / var(--n) * 92%) entry
-				calc(8% + var(--i) / var(--n) * 92%);
+		/* Bright half of the gradient sweeps through the text in reading
+		   order: an inline background spans all its line fragments as one
+		   strip. Paragraphs split one shared timeline via --from/--to.
+		   210% size with the edge at 50–52.4% keeps the soft edge fully
+		   off-strip at both ends, so text starts all dim and ends all bright. */
+		.reveal-text span {
+			color: transparent;
+			background: linear-gradient(
+					to right,
+					var(--fg) 50%,
+					color-mix(in oklch, var(--fg) 15%, transparent) 52.4%
+				)
+				100% 0 / 210% 100%;
+			-webkit-background-clip: text;
+			background-clip: text;
+			animation: text-fill linear both;
+			animation-timeline: --text;
+			animation-range: cover calc(var(--from) * 50%) cover calc(var(--to) * 50%);
 		}
 
 		.how-step {
@@ -318,14 +327,9 @@
 	}
 }
 
-@keyframes word-in {
-	from {
-		opacity: 0.1;
-		filter: blur(4px);
-	}
+@keyframes text-fill {
 	to {
-		opacity: 1;
-		filter: blur(0);
+		background-position: 0 0;
 	}
 }
 
