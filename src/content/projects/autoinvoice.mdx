@@ -1,0 +1,40 @@
+---
+title: 'AutoInvoice: GST invoicing for small businesses'
+summary: 'An invoicing app for small businesses: create GST invoices, delivery challans, and proformas, then send them as PDFs over email or WhatsApp.'
+tags: ['FastAPI', 'React', 'PostgreSQL', 'Redis', 'AWS Lambda', 'Cloudflare Workers']
+role: 'Full-stack'
+year: 2026
+order: 4
+link: 'https://unifieddesk.autoinvoicing.workers.dev/'
+repo: 'https://github.com/RajGajjar-01/AutoInvoice-frontend'
+---
+
+A billing workspace for small Indian businesses. Set up your company once, keep
+customers and inventory on file, and turn out invoices, delivery challans, and
+proformas from reusable templates. Each one renders as a PDF and goes straight
+to the customer by email or WhatsApp. It's now live as UnifiedDesk.
+
+## What it does
+
+- **Invoices built for GST**: HSN/SAC codes filled in from inventory, tax and discount per line item, round-off, and the amount in words using Indian numbering (lakhs and crores).
+- **More than invoices**: delivery challans and proformas use the same templates and line items.
+- **Sending**: PDF generation, then delivery by Gmail or WhatsApp, with a compose window and a searchable customer picker.
+- **Data tables**: build your own tables with configurable columns, reminders, and export.
+- **Accounts**: email/password or Google sign-in. Claims-based JWTs live in cookies, so routes scoped to one owner skip a database lookup.
+
+## Security and ops
+
+Bank details are encrypted at rest with AES-256-GCM and masked in the UI.
+Rate limiting runs on Redis, with an in-memory fallback if Redis can't be
+reached. Every response carries security headers, and each log line from
+structlog includes the request ID. CI runs lint, type checks, mock tests, and
+integration tests against real Postgres and Redis.
+
+## Deploy
+
+The [FastAPI backend](https://github.com/RajGajjar-01/AutoInvoice-backend)
+runs as a container on AWS Lambda behind Mangum, using Supabase Postgres and
+Upstash Redis. The React frontend runs on Cloudflare Workers. The Worker also
+proxies `/api` so the auth cookies count as first-party. Without that, Safari's
+tracking protection dropped the cross-site cookies from the Lambda URL, and
+iOS users kept getting sent back to the login page.
