@@ -3,9 +3,6 @@
 const W = 1440;
 const H = 9400;
 
-const START = 350;
-const END = '100%';
-
 const tail = [
 	'C926.8 7386.8 1240.0 7700.0 1150.0 8100.0',
 	'C1060.0 8500.0 300.0 8600.0 280.0 8900.0',
@@ -58,7 +55,7 @@ const trail = [
 <div
 	class="flight"
 	aria-hidden="true"
-	style={`--flight-d: path('${motion}'); --flight-start: ${START}px; --flight-end: ${END}; width: ${W}px; height: ${H}px`}
+	style={`--flight-d: path('${motion}'); width: ${W}px; height: ${H}px`}
 >
 	<svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none">
 		{
@@ -81,3 +78,62 @@ const trail = [
 	}
 	<img class="flight-plane" src="/plane.svg" width="64" height="64" alt="" />
 </div>
+
+<script>
+	const flight = document.querySelector<HTMLElement>('.flight');
+	const geometry = flight?.querySelector<SVGGeometryElement>('.flight-draw');
+
+	if (flight && geometry && getComputedStyle(flight).display !== 'none') {
+		const STEPS = 1500;
+		const total = geometry.getTotalLength();
+		const ys: number[] = [];
+		let top = 0;
+		for (let i = 0; i <= STEPS; i++) {
+			const y = geometry.getPointAtLength((i / STEPS) * total).y;
+			ys.push(i === 0 ? y : Math.max(y, ys[i - 1]));
+		}
+
+		// Progress along the route at which the plane sits at the given path y,
+		// so it stays in the middle of the viewport while scrolling down.
+		const progressAt = (y: number) => {
+			if (y <= ys[0]) return 0;
+			let lo = 0;
+			let hi = STEPS;
+			while (lo < hi) {
+				const mid = (lo + hi) >> 1;
+				if (ys[mid] >= y) hi = mid;
+				else lo = mid + 1;
+			}
+			return lo / STEPS;
+		};
+
+		const measure = () => {
+			top = flight.getBoundingClientRect().top + window.scrollY;
+		};
+
+		let current = 0;
+		let frame = 0;
+		const tick = () => {
+			frame = 0;
+			const y = window.scrollY + window.innerHeight / 2 - top;
+			const target = progressAt(y);
+			const landed = Math.min(1, Math.max(0, 1 - (y - ys[STEPS]) / 250));
+			current += (target - current) * 0.14;
+			if (Math.abs(target - current) < 0.0004) current = target;
+			flight.style.setProperty('--fp', current.toFixed(5));
+			flight.style.setProperty('--fo', (Math.min(1, current / 0.01) * landed).toFixed(3));
+			if (current !== target) frame = requestAnimationFrame(tick);
+		};
+		const schedule = () => {
+			if (!frame) frame = requestAnimationFrame(tick);
+		};
+
+		measure();
+		tick();
+		window.addEventListener('scroll', schedule, { passive: true });
+		window.addEventListener('resize', () => {
+			measure();
+			schedule();
+		});
+	}
+</script>
