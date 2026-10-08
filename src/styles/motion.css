@@ -309,7 +309,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-	@supports (animation-timeline: scroll()) and (offset-path: path('M0 0')) {
+	@supports (offset-path: path('M0 0')) {
 		@media (min-width: 64rem) {
 			.flight {
 				display: block;
@@ -325,17 +325,10 @@
 			z-index: 0;
 		}
 
-		.flight-draw,
-		.flight-plane {
-			animation-timeline: scroll(root block);
-			animation-range: var(--flight-start) var(--flight-end);
-			animation-timing-function: linear;
-			animation-fill-mode: both;
-		}
-
+		/* --fp (0..1) and --fo are set from the scroll position by FlightPath.astro. */
 		.flight-draw {
-			animation-name: flight-draw;
 			stroke-dasharray: 1;
+			stroke-dashoffset: calc(1 - var(--fp, 0));
 		}
 
 		.flight-plane {
@@ -344,31 +337,9 @@
 			left: 0;
 			offset-path: var(--flight-d);
 			offset-rotate: auto -33deg;
-			animation-name: flight-fly;
+			offset-distance: calc(var(--fp, 0) * 100%);
+			opacity: var(--fo, 0);
 		}
-	}
-}
-
-@keyframes flight-draw {
-	from {
-		stroke-dashoffset: 1;
-	}
-	to {
-		stroke-dashoffset: 0;
-	}
-}
-
-@keyframes flight-fly {
-	from {
-		offset-distance: 0%;
-		opacity: 0;
-	}
-	6% {
-		opacity: 1;
-	}
-	to {
-		offset-distance: 100%;
-		opacity: 1;
 	}
 }
 
