@@ -1,10 +1,16 @@
 ---
 
 const W = 1440;
-const H = 7400;
+const H = 9400;
 
 const START = 350;
-const END = 6800;
+const END = '100%';
+
+const tail = [
+	'C926.8 7386.8 1240.0 7700.0 1150.0 8100.0',
+	'C1060.0 8500.0 300.0 8600.0 280.0 8900.0',
+	'C260.0 9200.0 700.0 9150.0 720.0 9300.0',
+];
 
 const motion = [
 	'M209.5 490.5',
@@ -24,6 +30,7 @@ const motion = [
 	'C1313.1 6082.2 1377.9 6427.7 1278.7 6566.6',
 	'C1179.4 6705.5 1120.7 6747.9 926.8 6856.8',
 	'C732.8 6965.8 926.8 7126.8 926.8 7256.8',
+	...tail,
 ].join('');
 
 const trail = [
@@ -44,13 +51,14 @@ const trail = [
 	'C1313.1 6082.2 1377.9 6427.7 1278.7 6566.6',
 	'C1179.4 6705.5 1120.7 6747.9 926.8 6856.8',
 	'C732.8 6965.8 926.8 7126.8 926.8 7256.8',
+	...tail,
 ].join('');
 ---
 
 <div
 	class="flight"
 	aria-hidden="true"
-	style={`--flight-d: path('${motion}'); --flight-start: ${START}px; --flight-end: ${END}px; width: ${W}px; height: ${H}px`}
+	style={`--flight-d: path('${motion}'); --flight-start: ${START}px; --flight-end: ${END}; width: ${W}px; height: ${H}px`}
 >
 	<svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none">
 		{
