@@ -3,9 +3,11 @@ interface Props {
 	href: string;
 	variant?: 'solid' | 'outline' | 'ghost';
 	class?: string;
+	// Saves the file instead of navigating, which also keeps the page transition out of it.
+	download?: boolean;
 }
 
-const { href, variant = 'solid', class: className = '' } = Astro.props;
+const { href, variant = 'solid', class: className = '', download = false } = Astro.props;
 
 const external = !href.startsWith('/') && !href.startsWith('#');
 
@@ -23,6 +25,7 @@ const variantClass = {
 	href={href}
 	target={external ? '_blank' : undefined}
 	rel={external ? 'noopener noreferrer' : undefined}
+	download={download || undefined}
 	class:list={[base, variantClass, className]}
 >
 	<span><slot /></span>

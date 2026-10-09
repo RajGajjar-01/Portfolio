@@ -341,9 +341,12 @@
 			opacity: var(--fo, 0);
 		}
 
-		/* The layer ends on the line above Contact, so the plane disappears into it. */
+		/* The layer ends on the line above Contact, so the plane disappears into it. Clip
+		   only the bottom: the route swings past the layer's sides, where the plane must
+		   stay whole. */
 		.flight {
-			overflow: clip;
+			overflow-x: visible;
+			overflow-y: clip;
 		}
 	}
 }

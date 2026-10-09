@@ -68,16 +68,16 @@ const trail = [
 	const PITCH = 800;
 	const LOOP = 1300;
 	// Each swing differs, so the trail never settles into one repeated curve: where it turns
-	// (odd entries on the left, even on the right), its relative height, how round the
-	// turn is, and a lean on the heading through the turn. Cycled in order, never random,
-	// so the route is the same on every visit.
+	// (odd entries on the left, even on the right), its relative height, how round it is
+	// (handle length as a share of the drop) and a lean on the heading through the turn.
+	// Cycled in order, never random, so the route is the same on every visit.
 	const SWINGS = [
-		{ x: 170, h: 1, round: 0.32, lean: 0.15 },
-		{ x: 1220, h: 0.7, round: 0.48, lean: -0.35 },
-		{ x: 420, h: 1.3, round: 0.24, lean: 0.4 },
-		{ x: 1310, h: 0.85, round: 0.4, lean: 0 },
-		{ x: 250, h: 0.65, round: 0.5, lean: -0.25 },
-		{ x: 1080, h: 1.2, round: 0.3, lean: 0.3 },
+		{ x: 170, h: 1, round: 0.5, lean: 0.1 },
+		{ x: 1220, h: 0.75, round: 0.62, lean: -0.15 },
+		{ x: 380, h: 1.25, round: 0.42, lean: 0.15 },
+		{ x: 1310, h: 0.85, round: 0.56, lean: 0 },
+		{ x: 250, h: 0.7, round: 0.66, lean: -0.1 },
+		{ x: 1100, h: 1.15, round: 0.46, lean: 0.12 },
 	];
 	// The route ends this far below the line above Contact. The flight is clipped at that
 	// line, so the plane dives into it and vanishes, trail and all.
@@ -112,7 +112,10 @@ const trail = [
 			y += ((loopTop - y0) * w.h) / total;
 			const q: Pt = [w.x, y];
 			const next: Pt = [w.lean / Math.hypot(w.lean, 1), 1 / Math.hypot(w.lean, 1)];
-			segs.push(seg(p, dir, q, next, w.round));
+			// Handles scale with the drop, not the (mostly sideways) chord, so every crossing
+			// is a smooth arc: never a straight dive, never a boxy turn.
+			const chord = Math.hypot(q[0] - p[0], q[1] - p[1]);
+			segs.push(seg(p, dir, q, next, (w.round * (q[1] - p[1])) / chord));
 			[p, dir] = [q, next];
 		}
 		// Sweep left across the page, curl down the left side, skim along just above the
@@ -130,6 +133,48 @@ const trail = [
 			seg(c, RIGHTWARD, e, DOWN_RIGHT),
 		);
 		return segs.join('');
+	};
+
+	// The route's y at STEPS + 1 evenly spaced distances along it, never decreasing (where the
+	// route climbs, y holds). Done in one pass over a flattened copy of the path: the
+	// browser's getPointAtLength() re-walks the path from the start on every call, which
+	// cost seconds per layout on this route and froze the intro.
+	const sampleYs = (d: string) => {
+		const t = d.match(/[MC]|-?\d+(?:\.\d+)?/g) ?? [];
+		const pts: Pt[] = [];
+		let p: Pt = [0, 0];
+		for (let i = 0; i < t.length; ) {
+			if (t[i++] === 'M') {
+				p = [+t[i++], +t[i++]];
+				pts.push(p);
+				continue;
+			}
+			const [x1, y1, x2, y2, x, y] = t.slice(i, (i += 6)).map(Number);
+			for (let k = 1; k <= 24; k++) {
+				const u = k / 24;
+				const v = 1 - u;
+				pts.push([
+					v * v * v * p[0] + 3 * v * v * u * x1 + 3 * v * u * u * x2 + u * u * u * x,
+					v * v * v * p[1] + 3 * v * v * u * y1 + 3 * v * u * u * y2 + u * u * u * y,
+				]);
+			}
+			p = [x, y];
+		}
+		const at = [0];
+		for (let k = 1; k < pts.length; k++) {
+			at.push(at[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+		}
+		const total = at[at.length - 1];
+		const out: number[] = [];
+		let k = 1;
+		for (let i = 0; i <= STEPS; i++) {
+			const want = (i / STEPS) * total;
+			while (k < pts.length - 1 && at[k] < want) k++;
+			const span = at[k] - at[k - 1] || 1;
+			const y = pts[k - 1][1] + ((pts[k][1] - pts[k - 1][1]) * (want - at[k - 1])) / span;
+			out.push(i === 0 ? pts[0][1] : Math.max(y, out[i - 1]));
+		}
+		return out;
 	};
 
 	// Every number in the path data alternates x, y; stretch only the y values.
@@ -196,12 +241,7 @@ const trail = [
 			svg.setAttribute('viewBox', `0 0 ${svg.getAttribute('width')} ${height}`);
 			mask.setAttribute('height', String(height));
 
-			const total = geometry.getTotalLength();
-			ys = [];
-			for (let i = 0; i <= STEPS; i++) {
-				const y = geometry.getPointAtLength((i / STEPS) * total).y;
-				ys.push(i === 0 ? y : Math.max(y, ys[i - 1]));
-			}
+			ys = sampleYs(motion);
 		};
 
 		// Progress along the route at which the plane sits at the given path y,
