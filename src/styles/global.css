@@ -46,6 +46,9 @@
 		scroll-behavior: smooth;
 		scroll-padding-top: 6rem;
 		-webkit-text-size-adjust: 100%;
+		/* Keep the scrollbar's space when the page transition stops scrolling (Lenis sets
+		   overflow: hidden), so the content does not jump sideways between pages. */
+		scrollbar-gutter: stable;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

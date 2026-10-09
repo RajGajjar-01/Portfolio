@@ -3,24 +3,8 @@
 const W = 1440;
 const H = 9400;
 
-// The "How I work" section is about 6,300px tall with its text on the left, so the
-// route weaves through the empty right-hand side in long S-curves instead of
-// crossing the copy. Each half-wave leaves and arrives heading straight down.
-const WAVE_START = { x: 1336.1, y: 3012.5 };
-const WAVE_END_Y = 9300;
-const WAVE_X = [1010, 1330, 1040, 1300, 990, 1340, 1030, 1310, 1000, 1330, 1050, 1320];
-const wave = (() => {
-	const step = (WAVE_END_Y - WAVE_START.y) / WAVE_X.length;
-	let { x, y } = WAVE_START;
-	return WAVE_X.map((nx) => {
-		const ny = y + step;
-		const seg = `C${x.toFixed(1)} ${(y + step * 0.5).toFixed(1)} ${nx.toFixed(1)} ${(ny - step * 0.5).toFixed(1)} ${nx.toFixed(1)} ${ny.toFixed(1)}`;
-		x = nx;
-		y = ny;
-		return seg;
-	});
-})();
-
+// Static start of the route. FlightPath's script appends the rest once it knows where the
+// footer wordmark is, because the route has to end on it at any page height.
 const motion = [
 	'M209.5 490.5',
 	'C-41.4 613.3 43.3 876.4 73.8 934.7',
@@ -31,7 +15,6 @@ const motion = [
 	'C-45.9 2184.9 14.1 2481.7 209.3 2564.2',
 	'C404.5 2646.6 859.8 2617.2 1040.0 2641.2',
 	'C1220.2 2665.2 1356.9 2783.1 1336.1 3012.5',
-	...wave,
 ].join('');
 
 const trail = [
@@ -44,7 +27,6 @@ const trail = [
 	'C-45.9 2184.9 14.1 2481.7 209.3 2564.2',
 	'C404.5 2646.6 859.8 2617.2 1040.0 2641.2',
 	'C1220.2 2665.2 1356.9 2783.1 1336.1 3012.5',
-	...wave,
 ].join('');
 ---
 
@@ -76,56 +58,108 @@ const trail = [
 </div>
 
 <script>
-	const flight = document.querySelector<HTMLElement>('.flight');
-	const svg = flight?.querySelector<SVGSVGElement>('svg');
-	const geometry = flight?.querySelector<SVGGeometryElement>('.flight-draw');
-	const trailPath = flight?.querySelector<SVGPathElement>('path[mask]');
-	const maskRect = flight?.querySelector<SVGMaskElement>('mask');
+	const START_Y = 490.5;
+	// Where the static head of the route ends, and where the dive into the wordmark ends
+	// (both in the 1440px-wide design space before the route is stretched to the page).
+	const HEAD_END = { x: 1336.1, y: 3012.5 };
+	const DESIGN_END_Y = 9300;
+	// Alternating sides, so the plane sweeps across the whole page and not one gutter.
+	const SWINGS: [number, number][] = [
+		[170, 3800],
+		[1280, 4700],
+		[150, 5600],
+		[1290, 6500],
+		[170, 7400],
+		[1310, 8250],
+	];
 
-	if (flight && svg && geometry && trailPath && maskRect && getComputedStyle(flight).display !== 'none') {
-		const STEPS = 1500;
-		const START_Y = 490.5;
+	const STEPS = 1500;
+	const f = (n: number) => n.toFixed(1);
+
+	// Leaves and arrives heading straight down, so consecutive swings join smoothly.
+	const swing = (x0: number, y0: number, x1: number, y1: number) => {
+		const m = (y1 - y0) / 2;
+		return `C${f(x0)} ${f(y0 + m)} ${f(x1)} ${f(y1 - m)} ${f(x1)} ${f(y1)}`;
+	};
+
+	// Everything after the static head: the swings, then a curl into the end of the word.
+	const rest = (endX: number) => {
+		const segs: string[] = [];
+		let [x, y] = [HEAD_END.x, HEAD_END.y];
+		for (const [nx, ny] of SWINGS) {
+			segs.push(swing(x, y, nx, ny));
+			[x, y] = [nx, ny];
+		}
+		segs.push(
+			`C${f(x)} ${f(y + 550)} ${f(endX + 170)} ${f(DESIGN_END_Y - 90)} ${f(endX)} ${f(DESIGN_END_Y)}`,
+		);
+		return segs.join('');
+	};
+
+	// Every number in the path data alternates x, y; stretch only the y values.
+	const stretch = (d: string, k: number) => {
+		let i = 0;
+		return d.replace(/-?\d+(?:\.\d+)?/g, (n) =>
+			i++ % 2 ? (START_Y + (Number(n) - START_Y) * k).toFixed(1) : n,
+		);
+	};
+
+	let cleanup: AbortController | null = null;
+
+	const init = () => {
+		cleanup?.abort();
+		cleanup = new AbortController();
+		const { signal } = cleanup;
+		const root = document.documentElement;
+		root.removeAttribute('data-flight-landed');
+
+		const flight = document.querySelector<HTMLElement>('.flight');
+		const svg = flight?.querySelector<SVGSVGElement>('svg');
+		const geometry = flight?.querySelector<SVGGeometryElement>('.flight-draw');
+		const trailPath = flight?.querySelector<SVGPathElement>('path[mask]');
+		const mask = flight?.querySelector<SVGMaskElement>('mask');
+		const letters = document.querySelectorAll<HTMLElement>('.wordmark-rise > span');
+		if (!flight || !svg || !geometry || !trailPath || !mask) return;
+		if (getComputedStyle(flight).display === 'none') return;
+
 		const baseMotion = geometry.getAttribute('d') ?? '';
 		const baseTrail = trailPath.getAttribute('d') ?? '';
-		const baseEnd = Number(baseMotion.trim().split(/[\s,]+/).slice(-1)[0]);
-
-		// Every number in the path data alternates x, y; stretch only the y values.
-		const stretch = (d: string, k: number) => {
-			let i = 0;
-			return d.replace(/-?\d+(?:\.\d+)?/g, (n) =>
-				i++ % 2 ? (START_Y + (Number(n) - START_Y) * k).toFixed(1) : n,
-			);
-		};
 
 		let ys: number[] = [];
 		let top = 0;
-
-		// The route ends at the line above the contact section (or the page bottom if
-		// there is none) and the plane fades out just before it gets there.
-		const FADE = 260;
 		let routeEnd = 0;
 
-		// Stretch the route so the plane reaches its end exactly when the viewport
-		// middle reaches that line, so it is always in the middle of the screen.
+		// Build the route so it ends on the right end of the footer wordmark, and stretch it
+		// so the plane gets there exactly when the wordmark reaches the middle of the screen.
 		const layout = () => {
 			// Collapse first so the route itself never counts towards the page height.
 			flight.style.height = '0px';
-			top = flight.getBoundingClientRect().top + window.scrollY;
+			const box = flight.getBoundingClientRect();
+			top = box.top + window.scrollY;
 			const doc = document.documentElement.scrollHeight;
-			const contact = document.getElementById('contact');
-			const line = contact ? contact.getBoundingClientRect().top + window.scrollY : doc;
-			routeEnd = Math.min(line - top - 24, doc - window.innerHeight / 2 - top);
-			const k = Math.max(0.5, (routeEnd - START_Y) / (baseEnd - START_Y));
-			const motion = stretch(baseMotion, k);
-			const height = Math.ceil(doc - top);
+
+			// The letters rise into place on scroll, so measure the untransformed layout box:
+			// the wordmark line for the height and the last letter's offset for the x.
+			const last = letters[letters.length - 1];
+			const line = last?.parentElement?.getBoundingClientRect();
+			const endX = last && line
+				? line.left + last.offsetLeft - last.parentElement!.offsetLeft + last.offsetWidth * 0.5 - box.left
+				: 1200;
+			routeEnd = line ? line.top + window.scrollY + line.height * 0.5 - top : doc - top - 200;
+
+			const k = Math.max(0.5, (routeEnd - START_Y) / (DESIGN_END_Y - START_Y));
+			const tail = rest(endX);
+			const motion = stretch(baseMotion + tail, k);
+			// Stop just past the landing point so the route never makes the page longer.
+			const height = Math.ceil(Math.min(doc - top, routeEnd + 150));
 
 			geometry.setAttribute('d', motion);
-			trailPath.setAttribute('d', stretch(baseTrail, k));
+			trailPath.setAttribute('d', stretch(baseTrail + tail, k));
 			flight.style.setProperty('--flight-d', `path('${motion}')`);
 			flight.style.height = `${height}px`;
 			svg.setAttribute('height', String(height));
 			svg.setAttribute('viewBox', `0 0 ${svg.getAttribute('width')} ${height}`);
-			maskRect.setAttribute('height', String(height));
+			mask.setAttribute('height', String(height));
 
 			const total = geometry.getTotalLength();
 			ys = [];
@@ -151,15 +185,38 @@ const trail = [
 
 		let current = 0;
 		let frame = 0;
+		let landed = false;
+		let lastFp = '';
 		const tick = () => {
 			frame = 0;
-			const y = window.scrollY + window.innerHeight / 2 - top;
+			// The plane rides the middle of the screen. If the page cannot scroll far enough
+			// for the wordmark to reach the middle, it catches up over the last screenful so
+			// it still lands on the wordmark at the bottom of the page.
+			const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+			const short = Math.max(0, top + routeEnd - window.innerHeight / 2 - maxScroll);
+			const catchUp = Math.min(1, Math.max(0, 1 - (maxScroll - window.scrollY) / window.innerHeight));
+			const y = window.scrollY + window.innerHeight / 2 - top + short * catchUp;
 			const target = progressAt(y);
-			const fade = Math.min(1, Math.max(0, (routeEnd - y) / FADE));
-			current += (target - current) * 0.14;
+			// Scrolling is already smoothed by Lenis; only ease the jumps where the route
+			// doubles back on itself, so the plane does not trail behind the page.
+			current += (target - current) * 0.45;
 			if (Math.abs(target - current) < 0.0004) current = target;
-			flight.style.setProperty('--fp', current.toFixed(5));
-			flight.style.setProperty('--fo', (Math.min(1, current / 0.01) * fade).toFixed(3));
+
+			// On arrival the plane pops and the wordmark fills with the accent colour.
+			const arrived = current >= 0.995 && y >= routeEnd - 3;
+			if (arrived !== landed) {
+				landed = arrived;
+				flight.toggleAttribute('data-landed', landed);
+				root.toggleAttribute('data-flight-landed', landed);
+			}
+
+			// Skip repaints of the (very tall) trail when nothing visibly moved.
+			const fp = current.toFixed(4);
+			if (fp !== lastFp) {
+				lastFp = fp;
+				flight.style.setProperty('--fp', fp);
+				flight.style.setProperty('--fo', Math.min(1, current / 0.01).toFixed(3));
+			}
 			if (current !== target) frame = requestAnimationFrame(tick);
 		};
 		const schedule = () => {
@@ -168,15 +225,23 @@ const trail = [
 
 		layout();
 		tick();
-		window.addEventListener('scroll', schedule, { passive: true });
+		window.addEventListener('scroll', schedule, { passive: true, signal });
+
 		// Late layout shifts (fonts, images, sticky sections) change the page height.
-		window.addEventListener('load', () => {
+		const relayout = () => {
 			layout();
 			schedule();
+		};
+		const observer = new ResizeObserver(relayout);
+		observer.observe(document.body);
+		document.fonts?.ready.then(relayout);
+		signal.addEventListener('abort', () => {
+			observer.disconnect();
+			cancelAnimationFrame(frame);
 		});
-		new ResizeObserver(() => {
-			layout();
-			schedule();
-		}).observe(document.body);
-	}
+	};
+
+	// Runs on first load and after every client-side navigation back to the home page.
+	document.addEventListener('astro:page-load', init);
+	document.addEventListener('astro:before-swap', () => cleanup?.abort());
 </script>

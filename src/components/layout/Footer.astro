@@ -22,7 +22,7 @@ const pills = [
 	}
 	<div
 		aria-hidden="true"
-		class="w-full pb-[0.2em] [clip-path:inset(0)]"
+		class="w-full overflow-clip pb-[0.2em] [clip-path:inset(0)]"
 		style={`font-size: ${wordmarkSize}`}
 	>
 		{
@@ -30,7 +30,7 @@ const pills = [
 		}
 		<div
 			class="font-display wordmark-rise pointer-events-none w-full text-center leading-[1] font-bold whitespace-pre select-none"
-			style="color: var(--wordmark)"
+			style={`color: var(--wordmark); --n: ${letters.length}`}
 		>
 			{letters.map((char, i) => <span style={`--i:${i}`}>{char}</span>)}
 		</div>
