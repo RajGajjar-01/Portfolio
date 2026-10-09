@@ -1,0 +1,8 @@
+<svg aria-hidden="true" width="200" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0, 5) scale(0.4)">
+    <rect x="40" y="15" width="55" height="18" rx="9" fill="#00BF8F"/>
+    <rect x="5" y="41" width="55" height="18" rx="9" fill="#00BF8F"/>
+    <rect x="40" y="67" width="55" height="18" rx="9" fill="#00BF8F"/>
+  </g>
+  <text x="50" y="34" fill="#F8FAFC" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="24">UnifiedDesk</text>
+</svg>

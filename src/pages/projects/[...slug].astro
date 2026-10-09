@@ -10,13 +10,14 @@ import { breadcrumbSchema, projectSchema } from '../../lib/schema';
 
 export const getStaticPaths = (async () => {
 	const projects = await getProjects();
-	return projects.map((project) => ({
+	return projects.map((project, i) => ({
 		params: { slug: project.id },
-		props: { project },
+		// Wraps around, so the last project points back to the first.
+		props: { project, next: projects[(i + 1) % projects.length] },
 	}));
 }) satisfies GetStaticPaths;
 
-const { project } = Astro.props;
+const { project, next } = Astro.props;
 const { title, summary, cover, coverAlt, tags, year, role, link, repo } = project.data;
 const { Content } = await render(project);
 
@@ -29,7 +30,6 @@ const canonical = new URL(`/projects/${project.id}/`, Astro.site);
 	heading={title}
 	lede={summary}
 	tags={tags}
-	back={{ label: 'All work', href: '/projects' }}
 	image={cover?.src}
 	imageAlt={cover ? coverAlt : undefined}
 	schema={[
@@ -49,7 +49,7 @@ const canonical = new URL(`/projects/${project.id}/`, Astro.site);
 	<Fragment slot="hero">
 		{
 			cover && (
-				<div class="border-border bg-surface mb-14 overflow-hidden rounded-xl border">
+				<div class="border-border bg-surface mb-14 overflow-hidden border">
 					<Image
 						src={cover}
 						alt={coverAlt}
@@ -79,9 +79,38 @@ const canonical = new URL(`/projects/${project.id}/`, Astro.site);
 
 	<Content />
 
-	<Container slot="after" class="border-border mt-16 border-t py-12">
-		<a href="/projects" class="text-muted hover:text-fg text-sm transition-colors">
-			&larr; All work
-		</a>
+	<Container slot="after" class="mt-16">
+		<nav
+			aria-label="More work"
+			class="border-border grid border-t sm:grid-cols-2 sm:divide-x sm:divide-[var(--border)]"
+		>
+			<a href="/projects" class="group py-10 sm:pr-8">
+				<p class="eyebrow mb-3">Back to</p>
+				<p class="flex items-center gap-3 text-2xl sm:text-3xl">
+					<span class="text-muted group-hover:text-accent transition group-hover:-translate-x-1">
+						&larr;
+					</span>
+					<span class="group-hover:text-accent transition-colors">All work</span>
+				</p>
+			</a>
+			{
+				next.id !== project.id && (
+					<a
+						href={`/projects/${next.id}`}
+						class="group border-border border-t py-10 sm:border-t-0 sm:pl-8 sm:text-right"
+					>
+						<p class="eyebrow mb-3">Next project</p>
+						<p class="flex items-center gap-3 text-2xl sm:justify-end sm:text-3xl">
+							<span class="group-hover:text-accent transition-colors">
+								{next.data.title.split(':')[0]}
+							</span>
+							<span class="text-muted group-hover:text-accent transition group-hover:translate-x-1">
+								&rarr;
+							</span>
+						</p>
+					</a>
+				)
+			}
+		</nav>
 	</Container>
 </Entry>

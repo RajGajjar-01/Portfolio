@@ -7,10 +7,10 @@
 	// "main" omitted; @astrojs/cloudflare outputs dist/server/wrangler.json on build.
 	"assets": {
 		"directory": "./dist",
-		"binding": "ASSETS",
+		"binding": "ASSETS"
 	},
 
 	"observability": {
-		"enabled": true,
-	},
+		"enabled": true
+	}
 }

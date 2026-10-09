@@ -59,39 +59,75 @@ const trail = [
 
 <script>
 	const START_Y = 490.5;
-	// Where the static head of the route ends, and where the dive into the wordmark ends
-	// (both in the 1440px-wide design space before the route is stretched to the page).
+	// Where the static head of the route ends, and the y the head is stretched against
+	// (both in the 1440px-wide design space).
 	const HEAD_END = { x: 1336.1, y: 3012.5 };
 	const DESIGN_END_Y = 9300;
-	// Alternating sides, so the plane sweeps across the whole page and not one gutter.
-	const SWINGS: [number, number][] = [
-		[170, 3800],
-		[1280, 4700],
-		[150, 5600],
-		[1290, 6500],
-		[170, 7400],
-		[1310, 8250],
+	// After the head the route is built in page pixels: tight swings between the gutters,
+	// then a loop before the plane dives into the line above Contact.
+	const PITCH = 800;
+	const LOOP = 1300;
+	// Each swing differs, so the trail never settles into one repeated curve: where it turns
+	// (odd entries on the left, even on the right), its relative height, how round the
+	// turn is, and a lean on the heading through the turn. Cycled in order, never random,
+	// so the route is the same on every visit.
+	const SWINGS = [
+		{ x: 170, h: 1, round: 0.32, lean: 0.15 },
+		{ x: 1220, h: 0.7, round: 0.48, lean: -0.35 },
+		{ x: 420, h: 1.3, round: 0.24, lean: 0.4 },
+		{ x: 1310, h: 0.85, round: 0.4, lean: 0 },
+		{ x: 250, h: 0.65, round: 0.5, lean: -0.25 },
+		{ x: 1080, h: 1.2, round: 0.3, lean: 0.3 },
 	];
+	// The route ends this far below the line above Contact. The flight is clipped at that
+	// line, so the plane dives into it and vanishes, trail and all.
+	const DIVE = 80;
 
 	const STEPS = 1500;
 	const f = (n: number) => n.toFixed(1);
 
-	// Leaves and arrives heading straight down, so consecutive swings join smoothly.
-	const swing = (x0: number, y0: number, x1: number, y1: number) => {
-		const m = (y1 - y0) / 2;
-		return `C${f(x0)} ${f(y0 + m)} ${f(x1)} ${f(y1 - m)} ${f(x1)} ${f(y1)}`;
+	type Pt = [number, number];
+	// One cubic from p (heading d) to q (heading e); both directions are unit vectors.
+	const seg = (p: Pt, d: Pt, q: Pt, e: Pt, t = 0.5) => {
+		const len = Math.hypot(q[0] - p[0], q[1] - p[1]) * t;
+		return `C${f(p[0] + d[0] * len)} ${f(p[1] + d[1] * len)} ${f(q[0] - e[0] * len)} ${f(q[1] - e[1] * len)} ${f(q[0])} ${f(q[1])}`;
 	};
+	const DOWN: Pt = [0, 1];
+	const LEFTWARD: Pt = [-1, 0];
+	const RIGHTWARD: Pt = [1, 0];
+	const DOWN_RIGHT: Pt = [0.6, 0.8];
 
-	// Everything after the static head: the swings, then a curl into the end of the word.
-	const rest = (endX: number) => {
+	// Everything after the head, from (x, y0) down to the bottom of the route at `end`.
+	const rest = (y0: number, end: number) => {
 		const segs: string[] = [];
-		let [x, y] = [HEAD_END.x, HEAD_END.y];
-		for (const [nx, ny] of SWINGS) {
-			segs.push(swing(x, y, nx, ny));
-			[x, y] = [nx, ny];
+		const loopTop = Math.max(y0, end - LOOP);
+		// An even number of swings, so the last one arrives on the right, where the loop starts.
+		const n = 2 * Math.round((loopTop - y0) / (2 * PITCH));
+		const picks = Array.from({ length: n }, (_, i) => SWINGS[i % SWINGS.length]);
+		const total = picks.reduce((sum, w) => sum + w.h, 0);
+		let p: Pt = [HEAD_END.x, y0];
+		let dir: Pt = DOWN;
+		let y = y0;
+		for (const w of picks) {
+			y += ((loopTop - y0) * w.h) / total;
+			const q: Pt = [w.x, y];
+			const next: Pt = [w.lean / Math.hypot(w.lean, 1), 1 / Math.hypot(w.lean, 1)];
+			segs.push(seg(p, dir, q, next, w.round));
+			[p, dir] = [q, next];
 		}
+		// Sweep left across the page, curl down the left side, skim along just above the
+		// line and dip into it.
+		const h = end - loopTop;
+		const at = (x: number, y: number): Pt => [x, loopTop + h * y];
+		const a = at(700, 0.24);
+		const b = at(230, 0.58);
+		const c = at(760, 0.9);
+		const e = at(1330, 1);
 		segs.push(
-			`C${f(x)} ${f(y + 550)} ${f(endX + 170)} ${f(DESIGN_END_Y - 90)} ${f(endX)} ${f(DESIGN_END_Y)}`,
+			seg(p, dir, a, LEFTWARD),
+			seg(a, LEFTWARD, b, DOWN),
+			seg(b, DOWN, c, RIGHTWARD),
+			seg(c, RIGHTWARD, e, DOWN_RIGHT),
 		);
 		return segs.join('');
 	};
@@ -110,15 +146,14 @@ const trail = [
 		cleanup?.abort();
 		cleanup = new AbortController();
 		const { signal } = cleanup;
-		const root = document.documentElement;
-		root.removeAttribute('data-flight-landed');
 
 		const flight = document.querySelector<HTMLElement>('.flight');
 		const svg = flight?.querySelector<SVGSVGElement>('svg');
 		const geometry = flight?.querySelector<SVGGeometryElement>('.flight-draw');
 		const trailPath = flight?.querySelector<SVGPathElement>('path[mask]');
 		const mask = flight?.querySelector<SVGMaskElement>('mask');
-		const letters = document.querySelectorAll<HTMLElement>('.wordmark-rise > span');
+		const wordmark = document.querySelector<HTMLElement>('.wordmark-rise');
+		const contact = document.querySelector<HTMLElement>('.flight-end');
 		if (!flight || !svg || !geometry || !trailPath || !mask) return;
 		if (getComputedStyle(flight).display === 'none') return;
 
@@ -129,8 +164,9 @@ const trail = [
 		let top = 0;
 		let routeEnd = 0;
 
-		// Build the route so it ends on the right end of the footer wordmark, and stretch it
-		// so the plane gets there exactly when the wordmark reaches the middle of the screen.
+		// Stretch the head to the page the way it was designed (against the footer wordmark),
+		// then run the swings and the loop across the top of Contact, where the plane
+		// arrives as that point reaches the middle of the screen.
 		const layout = () => {
 			// Collapse first so the route itself never counts towards the page height.
 			flight.style.height = '0px';
@@ -138,23 +174,22 @@ const trail = [
 			top = box.top + window.scrollY;
 			const doc = document.documentElement.scrollHeight;
 
-			// The letters rise into place on scroll, so measure the untransformed layout box:
-			// the wordmark line for the height and the last letter's offset for the x.
-			const last = letters[letters.length - 1];
-			const line = last?.parentElement?.getBoundingClientRect();
-			const endX = last && line
-				? line.left + last.offsetLeft - last.parentElement!.offsetLeft + last.offsetWidth * 0.5 - box.left
-				: 1200;
-			routeEnd = line ? line.top + window.scrollY + line.height * 0.5 - top : doc - top - 200;
+			const word = wordmark?.getBoundingClientRect();
+			const wordY = word ? word.top + window.scrollY + word.height * 0.5 - top : doc - top - 200;
+			const k = Math.max(0.5, (wordY - START_Y) / (DESIGN_END_Y - START_Y));
+			const headEnd = START_Y + (HEAD_END.y - START_Y) * k;
 
-			const k = Math.max(0.5, (routeEnd - START_Y) / (DESIGN_END_Y - START_Y));
-			const tail = rest(endX);
-			const motion = stretch(baseMotion + tail, k);
-			// Stop just past the landing point so the route never makes the page longer.
-			const height = Math.ceil(Math.min(doc - top, routeEnd + 150));
+			const line = contact?.getBoundingClientRect();
+			const lineY = line ? line.top + window.scrollY - top : wordY;
+			routeEnd = Math.max(lineY + DIVE, headEnd + 300);
+
+			const tail = rest(headEnd, routeEnd);
+			const motion = stretch(baseMotion, k) + tail;
+			// End the layer on the line: the plane passes behind it (overflow is clipped).
+			const height = Math.ceil(Math.min(doc - top, routeEnd - DIVE));
 
 			geometry.setAttribute('d', motion);
-			trailPath.setAttribute('d', stretch(baseTrail + tail, k));
+			trailPath.setAttribute('d', stretch(baseTrail, k) + tail);
 			flight.style.setProperty('--flight-d', `path('${motion}')`);
 			flight.style.height = `${height}px`;
 			svg.setAttribute('height', String(height));
@@ -185,30 +220,21 @@ const trail = [
 
 		let current = 0;
 		let frame = 0;
-		let landed = false;
 		let lastFp = '';
 		const tick = () => {
 			frame = 0;
-			// The plane rides the middle of the screen. If the page cannot scroll far enough
-			// for the wordmark to reach the middle, it catches up over the last screenful so
-			// it still lands on the wordmark at the bottom of the page.
-			const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-			const short = Math.max(0, top + routeEnd - window.innerHeight / 2 - maxScroll);
-			const catchUp = Math.min(1, Math.max(0, 1 - (maxScroll - window.scrollY) / window.innerHeight));
-			const y = window.scrollY + window.innerHeight / 2 - top + short * catchUp;
+			// The plane rides the middle of the screen until the line above Contact is half a
+			// screen below the fold. From there it pulls ahead, down to the bottom of the
+			// screen, so it meets the line as the line scrolls in and flies into it.
+			const vh = window.innerHeight;
+			const below = top + routeEnd - DIVE - (window.scrollY + vh);
+			const ahead = (vh / 2) * Math.min(1, Math.max(0, 1 - below / (vh / 2)));
+			const y = window.scrollY + vh / 2 - top + ahead;
 			const target = progressAt(y);
 			// Scrolling is already smoothed by Lenis; only ease the jumps where the route
 			// doubles back on itself, so the plane does not trail behind the page.
 			current += (target - current) * 0.45;
 			if (Math.abs(target - current) < 0.0004) current = target;
-
-			// On arrival the plane pops and the wordmark fills with the accent colour.
-			const arrived = current >= 0.995 && y >= routeEnd - 3;
-			if (arrived !== landed) {
-				landed = arrived;
-				flight.toggleAttribute('data-landed', landed);
-				root.toggleAttribute('data-flight-landed', landed);
-			}
 
 			// Skip repaints of the (very tall) trail when nothing visibly moved.
 			const fp = current.toFixed(4);

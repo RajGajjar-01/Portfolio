@@ -13,7 +13,7 @@ interface Props extends SeoProps {
 	tags?: string[];
 	
 	tagHref?: (tag: string) => string;
-	back: { label: string; href: string };
+	back?: { label: string; href: string };
 }
 
 const { heading, lede, date, updatedDate, tags = [], tagHref, back, ...seo } = Astro.props;
@@ -29,13 +29,17 @@ const { heading, lede, date, updatedDate, tags = [], tagHref, back, ...seo } = A
 
 	<article class="py-16 sm:py-20">
 		<Container>
-			<a
-				href={back.href}
-				class="text-muted hover:text-fg group mb-10 inline-flex items-center gap-1.5 text-sm transition-colors"
-			>
-				<span class="inline-block transition-transform group-hover:-translate-x-0.5">&larr;</span>
-				{back.label}
-			</a>
+			{
+				back && (
+					<a
+						href={back.href}
+						class="text-muted hover:text-fg group mb-10 inline-flex items-center gap-1.5 text-sm transition-colors"
+					>
+						<span class="inline-block transition-transform group-hover:-translate-x-0.5">&larr;</span>
+						{back.label}
+					</a>
+				)
+			}
 
 			<header class="mb-12">
 				<h1 class="max-w-3xl text-4xl leading-[1.1] sm:text-6xl">{heading}</h1>

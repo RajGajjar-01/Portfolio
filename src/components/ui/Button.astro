@@ -9,13 +9,8 @@ const { href, variant = 'solid', class: className = '' } = Astro.props;
 
 const external = !href.startsWith('/') && !href.startsWith('#');
 
-const isMail = href.startsWith('mailto:');
-
 const base =
-	'group inline-flex items-center rounded-full px-5 py-2.5 text-md font-medium transition active:scale-[0.98]';
-
-const arrowBase =
-	'w-0 shrink-0 opacity-0 transition-all duration-200 group-hover:ml-2 group-hover:w-[1em] group-focus-visible:ml-2 group-focus-visible:w-[1em] group-focus-visible:opacity-100';
+	'inline-flex items-center justify-center rounded-full px-5 py-2.5 text-md font-medium transition active:scale-[0.98]';
 
 const variantClass = {
 	solid: 'btn-fill bg-fg text-bg',
@@ -30,25 +25,5 @@ const variantClass = {
 	rel={external ? 'noopener noreferrer' : undefined}
 	class:list={[base, variantClass, className]}
 >
-	{}
 	<span><slot /></span>
-	{
-		external && (
-			<svg
-				class:list={[
-					arrowBase,
-					isMail ? 'h-4 text-base group-hover:opacity-100' : 'h-3.5 text-sm group-hover:opacity-60',
-				]}
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				aria-hidden="true"
-			>
-				<path d={isMail ? 'M5 12h14M13 6l6 6-6 6' : 'M7 17 17 7M9 7h8v8'} />
-			</svg>
-		)
-	}
 </a>

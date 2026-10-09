@@ -341,22 +341,9 @@
 			opacity: var(--fo, 0);
 		}
 
-		/* On arrival the plane flashes out where it landed... */
-		.flight[data-landed] .flight-plane {
-			opacity: 0;
-			filter: brightness(2.2) blur(3px);
-			transition:
-				opacity 0.4s ease-out,
-				filter 0.4s ease-out;
-		}
-
-		/* ...and the wordmark fills with the accent, one letter after another from the right. */
-		.wordmark-rise > span {
-			transition: color 0.5s ease calc((var(--n, 10) - 1 - var(--i)) * 70ms);
-		}
-
-		:root[data-flight-landed] .wordmark-rise > span {
-			color: var(--accent);
+		/* The layer ends on the line above Contact, so the plane disappears into it. */
+		.flight {
+			overflow: clip;
 		}
 	}
 }
