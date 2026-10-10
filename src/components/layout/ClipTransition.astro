@@ -188,6 +188,8 @@ const labels = [...nav.map(({ label, href }) => [href, label]), ['/', site.name]
 
 		// Cover while the next page fetches; the swap waits for both.
 		document.addEventListener('astro:before-preparation', (event) => {
+			// Phones swap pages plainly: the shrinking card reads poorly on a small screen.
+			if (matchMedia('(max-width: 767px)').matches) return;
 			const load = event.loader;
 			event.loader = () => Promise.all([coverIn(event.to), load()]);
 		});

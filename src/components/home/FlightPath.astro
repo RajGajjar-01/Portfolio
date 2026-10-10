@@ -255,7 +255,9 @@ const trail = [
 				if (ys[mid] >= y) hi = mid;
 				else lo = mid + 1;
 			}
-			return lo / STEPS;
+			// Interpolate inside the step: snapping to whole samples made the plane hop ~10px.
+			const span = ys[lo] - ys[lo - 1];
+			return (lo - 1 + (span > 0 ? Math.min(1, (y - ys[lo - 1]) / span) : 1)) / STEPS;
 		};
 
 		let current = 0;
@@ -274,10 +276,10 @@ const trail = [
 			// Scrolling is already smoothed by Lenis; only ease the jumps where the route
 			// doubles back on itself, so the plane does not trail behind the page.
 			current += (target - current) * 0.45;
-			if (Math.abs(target - current) < 0.0004) current = target;
+			if (Math.abs(target - current) < 0.000005) current = target;
 
 			// Skip repaints of the (very tall) trail when nothing visibly moved.
-			const fp = current.toFixed(4);
+			const fp = current.toFixed(6);
 			if (fp !== lastFp) {
 				lastFp = fp;
 				flight.style.setProperty('--fp', fp);
